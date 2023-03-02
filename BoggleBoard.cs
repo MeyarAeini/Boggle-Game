@@ -76,12 +76,34 @@ public class BoggleBoard
     // Initializes a Boggle board from the specified filename.
     public BoggleBoard(string filename){
         using(var sr = new StreamReader(filename)){
-            var dim = sr.ReadLine().Split(' ');
+            var line =  sr.ReadLine();
+            if(line==null) 
+            {
+                board = new char[0][];
+                return;
+            }
+            var dim = line.Split(' ');
             rows = int.Parse(dim[0]);
             cols = int.Parse(dim[1]);
             board = new char[rows][];
             for(int i=0;i<rows;i++){
-                board[i] = sr.ReadLine().Split(' ').Select(it=>it[0]).ToArray();
+                line = sr.ReadLine();
+                if(line==null) break;
+                board[i] = new char[cols];
+                int k = 0;
+                for(int c=0;c<line.Length && k<cols;c++){
+                    if(isValidCharacter(line[c])){
+                        board[i][k] = line[c];
+                        if(line.IsQu(c)){
+                            board[i][k] = Constants.QU;
+                            c++;
+                        }
+                        else{
+                            board[i][k] = line[c];
+                        }                       
+                       k++; 
+                    }
+                }
             }        
         }
     }
@@ -112,5 +134,9 @@ public class BoggleBoard
             sb.AppendLine();
         }
         return sb.ToString();
+    }
+    private bool isValidCharacter(char v)
+    {
+        return v!=' ' && v!=',';
     }
 }

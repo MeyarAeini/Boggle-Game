@@ -22,7 +22,7 @@ internal class TrieSearchSession
         return result != null;
     }
     public bool IsaWord=> cursor != null && cursor.IsLeaf;
-    public string Word => sb.ToString();
+    public string Word => sb.ToString().Replace(Constants.QU.ToString(),Constants.QuValue);
     public bool Back(){
         if(path.Count==0)return false;
         cursor = path.Pop();

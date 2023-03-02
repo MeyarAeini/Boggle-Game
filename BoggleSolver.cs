@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BoggleGame;
 
 public class BoggleSolver
@@ -8,7 +10,7 @@ public class BoggleSolver
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(string[] dictionary)
     {
-        index = new Trie(dictionary); 
+        index = GetIndex(dictionary); 
     }
     public BoggleSolver(string fileName)
     {
@@ -20,7 +22,11 @@ public class BoggleSolver
             }
             sr.Close();
         }
-        index = new Trie(dictionary); 
+        index = GetIndex(dictionary); 
+    }
+    private Trie GetIndex(IEnumerable<string> dictionary){
+        if(dictionary==null) return new Trie(new string[]{});
+        return new Trie(dictionary); 
     }
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public IEnumerable<string> getAllValidWords(BoggleBoard board)
@@ -50,7 +56,7 @@ public class BoggleSolver
         }
         int length=0;
         for(int i=0;i<word.Length;i++){
-            if((word[i]=='Q' || word[i]=='q')&&(i<word.Length-1)&&(word[i+1]=='u' || word[i+1]=='u')){
+            if(word.IsQu(i)){
                 i++;
             }
             length++;

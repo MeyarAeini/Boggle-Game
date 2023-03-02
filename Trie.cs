@@ -7,11 +7,12 @@ internal class Trie
     {
         root = new TrieNode();        
         foreach(var str in dictionary){
+            var value = str.Replace(Constants.QuValue,Constants.QU.ToString());
             int i=0;
             var cursor = root;
-            while(i<str.Length){
-                cursor = cursor.FindOrAdd(str[i]);
-                i++;
+            while(i<value.Length){
+                cursor = cursor.FindOrAdd(value[i]);
+                i++;              
             }
             cursor.MarkAsLeaf();
         }
@@ -21,8 +22,16 @@ internal class Trie
         int i =0;
         var cursor = root;
         while(i < s.Length && cursor != null){
-            cursor = cursor.Find(s[i]);
-            i++;
+            if(s.IsQu(i))
+            {
+                cursor = cursor.FindOrAdd(Constants.QU);
+                i+=2;
+            }
+            else
+            {
+                cursor = cursor.Find(s[i]);
+                i++;
+            }
         }
         return i == s.Length && cursor != null &&  cursor.IsLeaf;
     }
