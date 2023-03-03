@@ -2,14 +2,14 @@ namespace BoggleGame;
 
 internal class BoggleBoardPath
 {
-    Stack<(int,int)> path;
+    Stack<BoggleBoardPos> path;
     HashSet<int> keys;
     BoggleBoard board;
     bool unique=false;
     int MAX_J = 10;
     public BoggleBoardPath(BoggleBoard board, bool unique = true)
     {
-        path = new Stack<(int, int)>();
+        path = new Stack<BoggleBoardPos>();
         this.board = board; 
         this.unique = unique;       
         keys = new HashSet<int>();
@@ -22,14 +22,14 @@ internal class BoggleBoardPath
             if(keys.Contains(key)) return false;
             keys.Add(key);
         }
-        path.Push((i,j));
+        path.Push(new BoggleBoardPos(i,j));
         return true;
     }
     public bool Pop(){
         if(path.Count==0) return false;
         if(unique){
             var top = path.Peek();
-            keys.Remove(getKey(top.Item1,top.Item2));
+            keys.Remove(getKey(top.row,top.col));
         }
         path.Pop();
         return true;
@@ -38,7 +38,7 @@ internal class BoggleBoardPath
     {
         if(path.Count==0) return ' ';
         var top = path.Peek();
-        return board.getLetter(top.Item1,top.Item2);
+        return board.getLetter(top.row,top.col);
     }
     public int ReturnTo(int row, int column)
     {
@@ -46,16 +46,20 @@ internal class BoggleBoardPath
 
         var top = path.Peek();
         int steps=0;
-        while(top.Item1!=row && top.Item2!=column){ 
+        while(top.row!=row && top.col!=column){ 
             steps+=1;
             if(unique){
-                keys.Remove(getKey(top.Item1,top.Item2));
+                keys.Remove(getKey(top.row,top.col));
             }    
             path.Pop(); 
             if(path.Count==0) break;  
             top = path.Peek();            
         }
         return steps;
+    }
+    public List<BoggleBoardPos> GetPath()
+    {
+        return path.ToList();
     }
     private int getKey(int i,int j){
         return i*MAX_J+j;

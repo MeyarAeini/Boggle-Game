@@ -29,19 +29,16 @@ public class BoggleSolver
         return new Trie(dictionary); 
     }
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
-    public IEnumerable<string> getAllValidWords(BoggleBoard board)
+    public IEnumerable<BoggleGamePath> getAllValidWords(BoggleBoard board)
     {
-        HashSet<string> result = new HashSet<string>();        
+        List<BoggleGamePath> result = new List<BoggleGamePath>();        
         for(int i=0;i<board.rows;i++){
             for(int j=0;j<board.cols;j++){
                 var path = new BoggleBoardPath(board);
                 var search = index.OpenSearchSession();
                 var lst = Search(search,path,i,j);
-                if(lst==null)return result;
-                foreach(var word in lst){
-                    if(result.Contains(word)) continue;
-                    result.Add(word);
-                }
+                if(lst==null) return result;
+                result.AddRange(lst);
             }
         }
         return result;
@@ -73,7 +70,7 @@ public class BoggleSolver
         }
     }
     
-    private IEnumerable<string>? Search(TrieSearchSession session,BoggleBoardPath path,int row, int column)
+    private IEnumerable<BoggleGamePath>? Search(TrieSearchSession session,BoggleBoardPath path,int row, int column)
     {
         if(!path.Push(row,column))
         {
@@ -86,11 +83,11 @@ public class BoggleSolver
             return null;
         }   
 
-        List<string> result = new List<string>();
+        List<BoggleGamePath> result = new List<BoggleGamePath>();
 
         if(session.IsaWord && session.Word.Length>=2)
         {
-            result.Add(session.Word);
+            result.Add(new BoggleGamePath(session.Word,path.GetPath()));
         }
         for(int k=-1;k<2;k++){
             for(int l=-1;l<2;l++){
