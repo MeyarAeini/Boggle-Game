@@ -1,7 +1,6 @@
-using System.Globalization;
-
 namespace BoggleGame;
 
+using BoggleGame.Dto;
 public class BoggleSolver
 {
     Trie index;
@@ -29,19 +28,63 @@ public class BoggleSolver
         return new Trie(dictionary); 
     }
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
-    public IEnumerable<BoggleGamePath> getAllValidWords(BoggleBoard board)
+    public IEnumerable<BoggleGamePath> getAllValidPaths(BoggleBoard board)
     {
         List<BoggleGamePath> result = new List<BoggleGamePath>();        
+        int k = 0;
         for(int i=0;i<board.rows;i++){
             for(int j=0;j<board.cols;j++){
                 var path = new BoggleBoardPath(board);
                 var search = index.OpenSearchSession();
                 var lst = Search(search,path,i,j);
-                if(lst==null) return result;
+                if(lst==null) continue;
                 result.AddRange(lst);
             }
         }
         return result;
+    }
+
+    // Returns the set of all valid words in the given Boggle board, as an Iterable.
+    public Dictionary<string,HashSet<WordPath>> getAllValidWordWithPaths(BoggleBoard board)
+    {
+        var result = new Dictionary<string,HashSet<WordPath>>();    
+        var path = new BoggleBoardPath(board); 
+        // index.Root.FindWord("SCORE");
+        // return result;
+        for(int i=0;i<board.rows;i++){
+            for(int j=0;j<board.cols;j++){                
+                Search(result,path,i,j);
+                path.CleanUp();
+            }
+        }
+        return result;
+    }
+
+    public IEnumerable<string> getAllValidWords(BoggleBoard board)
+    {
+        var words = new Dictionary<string,int>(); 
+        var notWords = new HashSet<string>();
+        var explorer = new BoardExplorer();
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+        explorer.ExplorDFS(board, it => {            
+            if(notWords.Contains(it)) return false; //already checked , it does not exist.
+            if(words.ContainsKey(it)) { // already checked it does exist as complete word
+                words[it]++;
+                return true;
+            }
+            var exist = index.Root.AnyStartWith(it);
+            if(!exist.Item1){ // could not find any word with this prefix
+                notWords.Add(it);
+                return false;
+            }
+            if(exist.Item2) // it is complete word, add to the result
+                words.Add(it,1);
+            return true;
+        });
+       Console.WriteLine($"{sw.ElapsedMilliseconds/1000} - {words.Count}");
+       Console.WriteLine(words.Keys.Sum(it=>scoreOf(it.Replace(Constants.QU.ToString(),Constants.QuValue))));
+       return words.Keys.Select(it=>it.Replace(Constants.QU.ToString(),Constants.QuValue));
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
@@ -77,12 +120,11 @@ public class BoggleSolver
             //no move
             return null;
         }
-        
+
         if(!session.MoveForward(path.Top())){
             path.Pop(); //go back to the original place since this path does not exist in the dictionary
             return null;
         }   
-
         List<BoggleGamePath> result = new List<BoggleGamePath>();
 
         if(session.IsaWord && session.Word.Length>=2)
@@ -91,15 +133,15 @@ public class BoggleSolver
         }
         for(int k=-1;k<2;k++){
             for(int l=-1;l<2;l++){
+                
                 if(l==0 && k==0) continue;
 
                 var subResult = Search(session,path,row+k, column+l);
-                if(subResult==null){
-                    continue;//not move has been hapened or cursor has moved back to the original place
+                if(subResult!=null){
+                    result.AddRange(subResult);
                 }
                 
-                result.AddRange(subResult);
-                var stepBacks = path.ReturnTo(row,column);
+                var stepBacks = path.ReturnTo(row,column);                
                 while(stepBacks>0){
                     session.Back();
                     stepBacks--;
@@ -108,5 +150,65 @@ public class BoggleSolver
         }         
         return result;
     }
+    private void Search(IDictionary<string,HashSet<WordPath>> result,BoggleBoardPath path,int row, int column)
+    {
+        if(!path.Push(row,column))
+        {
+            //no move
+            return ;
+        }
+        var word = path.GetWord();
+        var tword = word.Replace(Constants.QU.ToString(),Constants.QuValue);
+        
+        if(result.TryGetValue(tword ,out var existinWordPaths))
+        {
+            existinWordPaths.Add(new WordPath(path.GetPath()));
+        }
+        else
+        {      
+            if(!index.Root.FindWord(word)){
+                //path.Pop(); //go back to the original place since this path does not exist in the dictionary
+                return;
+            }
+            result.Add(tword,new HashSet<WordPath>(){new WordPath(path.GetPath())});
+        }
+        
+        for(int k=-1;k<2;k++){
+            for(int l=-1;l<2;l++){                
+                if(l==0 && k==0) continue;               
+                Search(result,path,row+k, column+l);                
+                path.ReturnTo(row,column);
+            }
+        }        
+    }
 
+    private void Search(HashSet<string> result,BoggleBoardPath path,int row, int column)
+    {
+        if(!path.Push(row,column))
+        {
+            //no move
+            return ;
+        }
+        var word = path.GetWord();
+        var tword = word.Replace(Constants.QU.ToString(),Constants.QuValue);
+        
+        if(!result.TryGetValue(tword ,out var existinWordPaths))
+        {
+            if(!index.Root.FindWord(word)){
+                //path.Pop(); //go back to the original place since this path does not exist in the dictionary
+                return;
+            }
+            result.Add(tword);
+        }
+        else{
+        }
+        
+        for(int k=-1;k<2;k++){
+            for(int l=-1;l<2;l++){                
+                if(l==0 && k==0) continue;               
+                Search(result,path,row+k, column+l);                
+                path.ReturnTo(row,column);
+            }
+        }        
+    }
 }

@@ -50,9 +50,13 @@ public class BoggleBoard
 
     // Initializes a random 4-by-4 Boggle board.
     // (by rolling the Hasbro dice)
-    public BoggleBoard(){
-        rows = 4;
-        cols = 4;
+    public BoggleBoard() : this(4,4){}
+
+    // Initializes a random m-by-n Boggle board.
+    // (using the frequency of letters in the English language)
+    public BoggleBoard(int m, int n){
+        rows = m;
+        cols = n;
         board = new char[rows][];
         for(int k=0;k<rows;k++) board[k] = new char[cols];
 
@@ -65,12 +69,6 @@ public class BoggleBoard
                 board[i][j] = word[r];
             }
         }
-    }
-
-    // Initializes a random m-by-n Boggle board.
-    // (using the frequency of letters in the English language)
-    public BoggleBoard(int m, int n){
-
     }
 
     // Initializes a Boggle board from the specified filename.

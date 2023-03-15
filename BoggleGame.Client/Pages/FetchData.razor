@@ -1,0 +1,38 @@
+﻿@page "/fetchdata"
+@inject BoggleGame.Client.Services.IBoggleResolver boggleResolver
+
+<PageTitle>Dictionaries</PageTitle>
+
+<h1>Dictionaries</h1>
+
+@if (dictionaries == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dictionary in dictionaries)
+            {
+                <tr>
+                    <td>@dictionary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<string>? dictionaries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dictionaries = await boggleResolver.GetDictionaries();
+    }
+}

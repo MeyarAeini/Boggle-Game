@@ -33,6 +33,32 @@ internal class TrieNode
             index.Add(LF,null);
         }
     }
+    
+    public bool FindWord(string word)
+    {
+        var c = AnyStartWith(word);
+        return c.Item2;
+    }
+
+    public (bool,bool) AnyStartWith(string prefix)
+    {
+        var c = GoTo(prefix);
+        return (c != null ,c != null && c.IsLeaf);
+    }
+
+    private TrieNode? GoTo(string word)
+    {
+        var c = this;
+        for(int i=0;i<word.Length;i++)
+        {
+            c = c.Find(word[i]);
+            if(c==null)
+            {
+                return c;
+            }
+        }
+        return c;
+    }
     Dictionary<char,TrieNode> index;
     public override string ToString()
     {

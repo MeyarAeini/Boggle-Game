@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using BoggleGame.Dto;
 
 namespace BoggleGame.Api.Controllers;
 
@@ -15,7 +16,7 @@ public class BoggleSolverController : ControllerBase
     }
 
     [HttpPost("Solve")]
-    public IEnumerable<BoggleGamePath> Solve(BoggleGameSolveRequest request)
+    public IEnumerable<string> Solve(BoggleGameSolveRequest request)
     {
         var boggleSolver = new BoggleSolver(GetFullNameFileName(DictionaryPrefix,request.dictionary));
         var board = new BoggleBoard(GetFullNameFileName(BoardPrefix,request.board));
@@ -27,6 +28,18 @@ public class BoggleSolverController : ControllerBase
     public IEnumerable<string> GetBoards()
     {
         return GetFileNamesStartWith(BoardPrefix);
+    }
+
+    [HttpGet("GetBoard/{boardName}")]
+    public async Task<string> GetBoardAsync(string boardName)
+    {
+        var name = GetFullNameFileName(BoardPrefix,boardName);
+        string? board = null;
+        using(var sr = new StreamReader(name))
+        {            
+            board= await sr.ReadToEndAsync();
+        }
+        return board;
     }
 
     [HttpGet("GetDictionaries")]
@@ -52,4 +65,3 @@ public class BoggleSolverController : ControllerBase
         return  $"{path}{prefix}{name}.txt";
     }
 }
-public record BoggleGameSolveRequest (string dictionary, string board);

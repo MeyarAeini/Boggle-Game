@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BoggleGame\BoggleGame.csproj" />
+    <ProjectReference Include="..\BoggleGame.Dto\BoggleGame.Dto.csproj" />
   </ItemGroup>
 
 </Project>

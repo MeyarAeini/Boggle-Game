@@ -5,13 +5,16 @@ using System.Text;
 internal class TrieSearchSession
 {
     TrieNode cursor;
+    TrieNode root;
     Stack<TrieNode> path;
     StringBuilder sb;
     public TrieSearchSession(TrieNode root){
         cursor = root;
+        this.root= root;
         path = new Stack<TrieNode>();
         sb = new StringBuilder();
     }
+
     public bool MoveForward(char ch){
         var result = cursor.Find(ch);
         if(result!=null){
