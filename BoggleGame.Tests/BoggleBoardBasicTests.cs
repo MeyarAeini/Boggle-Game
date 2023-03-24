@@ -18,12 +18,27 @@ public class BoggleBoardBasicTests
     }
 
     [Fact]
-    public void GenerateABoard()
+    public void GenerateABoardByLetterFrequencies()
     {
         BoggleBoard[] boards = new BoggleBoard[100];
         for(int i=0;i<100;i++)
         {
             boards[i] = new BoggleBoard(4,4);
+            output.WriteLine(boards[i].ToString());
+        }
+        for(int i=0;i<99;i++)
+        {
+            Assert.False(TheyAreVerySimilar(boards[i],boards[i+1]));
+        }
+    }
+
+    [Fact]
+    public void GenerateABoardByRollingHasbroDice()
+    {
+        BoggleBoard[] boards = new BoggleBoard[100];
+        for(int i=0;i<100;i++)
+        {
+            boards[i] = new BoggleBoard();
             output.WriteLine(boards[i].ToString());
         }
         for(int i=0;i<99;i++)
@@ -46,13 +61,14 @@ public class BoggleBoardBasicTests
         }
         var frequencies = new double[BoggleBoard.FREQUENCIES.Length];
         double differenceTotal = 0.0;
-        for(int i=0;i<occurrence.Count;i++)
+        for(int i=0;i<BoggleBoard.ALPHABET.Length;i++)
         {
-            var probability = occurrence.ContainsKey(BoggleBoard.ALPHABET[i]) ? (double)occurrence[BoggleBoard.ALPHABET[i]]/(double)int.MaxValue : 0.0;
+            var ch = BoggleBoard.ALPHABET[i];
+            var probability = occurrence.ContainsKey(ch) ? (double)occurrence[ch]/(double)int.MaxValue : 0.0;
             probability = Math.Round(probability, 5);
             differenceTotal += Math.Abs(BoggleBoard.FREQUENCIES[i]-probability);
 
-            output.WriteLine($"{BoggleBoard.FREQUENCIES[i]} vs {probability} ; {BoggleBoard.FREQUENCIES[i]-probability}");
+            output.WriteLine($"{ch} : {BoggleBoard.FREQUENCIES[i]} vs {probability} ; Difference : {BoggleBoard.FREQUENCIES[i]-probability}");
         }
         output.WriteLine($"total difference = {differenceTotal}");
         Assert.True(differenceTotal<0.0001);
@@ -66,6 +82,6 @@ public class BoggleBoardBasicTests
             for(int j=0;j<a.cols;j++)
                 if(a.getLetter(i,j)==b.getLetter(i,j)) equals++;
         }
-         return equals>= (a.rows*a.cols)/2;
+         return equals>= (a.rows*a.cols)/3;
     }
 }

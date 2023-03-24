@@ -64,7 +64,15 @@ public class BoggleBoard
     // (by rolling the Hasbro dice)
     public BoggleBoard() 
     {
-        initByRollingHasbroDice(4, 4, BOGGLE_1992);
+        var dice = BOGGLE_1992;
+        switch(Rand.Next(3))
+        {
+            case 0 : dice = BOGGLE_1992; break;
+            case 1 : dice = BOGGLE_1983; break;
+            case 2 : dice = BOGGLE_MASTER; break;
+            case 3 : dice = BOGGLE_BIG; break;
+        }
+        initByRollingHasbroDice(4, 4, dice);
     }
 
     // Initializes a random m-by-n Boggle board.
@@ -195,13 +203,11 @@ public class BoggleBoard
     private void initByRollingHasbroDice(int m, int n, string[] boggleDices) 
     {
         initBoard(m, n);
-
-        var rnd = new Random();
-        var words = boggleDices.OrderBy(it=>rnd.Next()).ToArray();
+        var words = boggleDices.OrderBy(it=>Rand.Next()).ToArray();
         for(int i=0;i<rows;i++){
             for(int j=0;j<cols;j++){
                 var word = words[i*rows+j];
-                var r = rnd.Next(word.Length-1);
+                var r = Rand.Next(word.Length-1);
                 board[i][j] = word[r];
             }
         }
