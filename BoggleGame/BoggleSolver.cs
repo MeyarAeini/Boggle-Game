@@ -11,15 +11,12 @@ public class BoggleSolver
     {
         index = GetIndex(dictionary); 
     }
-    public BoggleSolver(string fileName)
+    public BoggleSolver(StreamReader stream)
     {
         List<string> dictionary = new List<string>();
-        using(var sr = new StreamReader(fileName)){
-            string? line;
-            while((line=sr.ReadLine())!=null){
-                dictionary.Add(line);
-            }
-            sr.Close();
+        string? line;
+        while((line=stream.ReadLine())!=null){
+            dictionary.Add(line);
         }
         index = GetIndex(dictionary); 
     }
@@ -65,8 +62,6 @@ public class BoggleSolver
         var words = new Dictionary<string,int>(); 
         var notWords = new HashSet<string>();
         var explorer = new BoardExplorer();
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
         explorer.ExplorDFS(board, it => {            
             if(notWords.Contains(it)) return false; //already checked , it does not exist.
             if(words.ContainsKey(it)) { // already checked it does exist as complete word
@@ -81,9 +76,7 @@ public class BoggleSolver
             if(exist.Item2) // it is complete word, add to the result
                 words.Add(it,1);
             return true;
-        });
-       Console.WriteLine($"{sw.ElapsedMilliseconds/1000} - {words.Count}");
-       Console.WriteLine(words.Keys.Sum(it=>scoreOf(it.Replace(Constants.QU.ToString(),Constants.QuValue))));
+        });       
        return words.Keys.Select(it=>it.Replace(Constants.QU.ToString(),Constants.QuValue));
     }
 

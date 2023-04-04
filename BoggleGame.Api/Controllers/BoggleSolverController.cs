@@ -9,59 +9,42 @@ public class BoggleSolverController : ControllerBase
 {
 
     private readonly ILogger<BoggleSolverController> _logger;
+    private readonly BoggleFileRepository boggleFileRepository;
 
-    public BoggleSolverController(ILogger<BoggleSolverController> logger)
+    public BoggleSolverController(BoggleFileRepository boggleFileRepository,ILogger<BoggleSolverController> logger)
     {
         _logger = logger;
+        this.boggleFileRepository = boggleFileRepository;
     }
 
     [HttpPost("Solve")]
-    public IEnumerable<string> Solve(BoggleGameSolveRequest request)
+    public async Task<IEnumerable<string>> Solve(BoggleGameSolveRequest request)
     {
-        var boggleSolver = new BoggleSolver(GetFullNameFileName(DictionaryPrefix,request.dictionary));
-        var board = new BoggleBoard(GetFullNameFileName(BoardPrefix,request.board));
-        var words = boggleSolver.getAllValidWords(board);
-        return words;
+        using(var dictionaryFile = await boggleFileRepository.GetDictionaryStreamReaderAsync(request.dictionary) )
+        using(var boardFile = await boggleFileRepository.GetBoardStreamReaderAsync(request.board) ){
+            var boggleSolver = new BoggleSolver(dictionaryFile);
+            var board = new BoggleBoard(boardFile);
+            var words = boggleSolver.getAllValidWords(board);
+            return words;
+        }
     }
 
     [HttpGet("GetBoards")]
     public IEnumerable<string> GetBoards()
     {
-        return GetFileNamesStartWith(BoardPrefix);
+        return boggleFileRepository.GetBoards();
     }
 
     [HttpGet("GetBoard/{boardName}")]
     public async Task<string> GetBoardAsync(string boardName)
     {
-        var name = GetFullNameFileName(BoardPrefix,boardName);
-        string? board = null;
-        using(var sr = new StreamReader(name))
-        {            
-            board= await sr.ReadToEndAsync();
-        }
-        return board;
+        using(var boardFile = await boggleFileRepository.GetBoardStreamReaderAsync(boardName))
+            return await boardFile.ReadToEndAsync();
     }
 
     [HttpGet("GetDictionaries")]
     public IEnumerable<string> GetDictionaries()
     {
-       return GetFileNamesStartWith(DictionaryPrefix);
-    }
-    const string DictionaryPrefix = "dictionary-";
-    const string BoardPrefix = "board-";
-
-    private IEnumerable<string> GetFileNamesStartWith(string prefix)
-    {
-        string path = @"..\BoggleGame\files\";
-        return Directory.GetFiles(path)
-        .Select(it=>it.Substring(path.Length,it.Length-path.Length-4))
-        .Where(it=>it.StartsWith(prefix))
-        .Select(it=>it.Substring(prefix.Length));
-    }
-
-    private string GetFullNameFileName(string prefix,string name)
-    {
-        string path = @"..\BoggleGame\files\";
-        return  $"{path}{prefix}{name}.txt";
+       return boggleFileRepository.GetDictionaries();
     }
 }

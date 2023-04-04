@@ -1,59 +1,81 @@
 namespace BoggleGame.Tests;
 using Xunit.Abstractions;
-public class BoggleBoardBasicTests
+
+[Collection("BoggleGame")]
+public class BoggleBoardBasicTests : TestCollection
 {
-    private static readonly double[] FREQUENCIES = {
-        0.08167, 0.01492, 0.02782, 0.04253, 0.12703, 0.02228,
-        0.02015, 0.06094, 0.06966, 0.00153, 0.00772, 0.04025,
-        0.02406, 0.06749, 0.07507, 0.01929, 0.00095, 0.05987,
-        0.06327, 0.09056, 0.02758, 0.00978, 0.02360, 0.00150,
-        0.01974, 0.00074
-    };
-
-    private readonly ITestOutputHelper output;
-
-    public BoggleBoardBasicTests(ITestOutputHelper output)
+    public BoggleBoardBasicTests(ITestOutputHelper output, TestFixture fixture) : base(output, fixture)
     {
-        this.output = output;
     }
 
-    [Fact]
+    [Fact(DisplayName = "Generate 100 boggle boards by letter frequencies, randomness check")]
     public void GenerateABoardByLetterFrequencies()
     {
         BoggleBoard[] boards = new BoggleBoard[100];
         for(int i=0;i<100;i++)
         {
             boards[i] = new BoggleBoard(4,4);
-            output.WriteLine(boards[i].ToString());
         }
         for(int i=0;i<99;i++)
         {
-            Assert.False(TheyAreVerySimilar(boards[i],boards[i+1]));
+            BoggleTestHelper.AssertNotSimilar(boards[i],boards[i+1]);
         }
     }
 
-    [Fact]
+    [Theory]
+    [InlineData(2,2,5000)]
+    [InlineData(3,3,10000)]
+    [InlineData(3,4,10000)]
+    [InlineData(4,4,10000)]
+    [InlineData(1,4,10000)]
+    [InlineData(5,1,10000)]
+    [InlineData(5,5,10000)]
+    [InlineData(10,10,10000)]   
+    [TestOrder(1)]
+    public void PerformanceTest(int m,int n,int count)
+    {
+        BoggleBoard? a = null;
+        BoggleBoard? b = null;
+        for(int i=0;i<count;i++)
+        {
+            b = a;
+            a = new BoggleBoard(m,n);
+            if(b!=null)
+            if(m*n<=10)
+            {
+                BoggleTestHelper.AssertNotEqual(a,b);
+            }
+            else{
+                BoggleTestHelper.AssertNotSimilar(a,b);
+            }
+        }
+    }
+
+    [Fact(DisplayName = "Generate 100 boggle boards by rolling hasbro dice, randomness check")]
     public void GenerateABoardByRollingHasbroDice()
     {
         BoggleBoard[] boards = new BoggleBoard[100];
         for(int i=0;i<100;i++)
         {
             boards[i] = new BoggleBoard();
-            output.WriteLine(boards[i].ToString());
         }
         for(int i=0;i<99;i++)
         {
-            Assert.False(TheyAreVerySimilar(boards[i],boards[i+1]));
+            BoggleTestHelper.AssertNotSimilar(boards[i],boards[i+1]);
         }
     }
 
-    [Fact]
-    public void CharacterFrequencyIsOk()
+    [Theory]
+    //[InlineData(int.MaxValue,.0001)] //for real probability
+    [InlineData(int.MaxValue/1000,.004)]
+    [TestOrder(10)]
+    public void CharacterFrequencyIsOk(int charCount, double limit)
     {
+        var brdInstance = new BoggleBoard();
         SortedDictionary<char,int> occurrence = new SortedDictionary<char, int>();
-        for(int i=0;i<int.MaxValue;i++)
+        for(int i=0;i<charCount;i++)
         {
-            var ch = BoggleBoard.GetNextRandomChar();
+            var ch = brdInstance.GetNextRandomChar();
             if(occurrence.ContainsKey(ch))
                 occurrence[ch]++;
             else
@@ -64,24 +86,13 @@ public class BoggleBoardBasicTests
         for(int i=0;i<BoggleBoard.ALPHABET.Length;i++)
         {
             var ch = BoggleBoard.ALPHABET[i];
-            var probability = occurrence.ContainsKey(ch) ? (double)occurrence[ch]/(double)int.MaxValue : 0.0;
+            var probability = occurrence.ContainsKey(ch) ? (double)occurrence[ch]/(double)charCount : 0.0;
             probability = Math.Round(probability, 5);
             differenceTotal += Math.Abs(BoggleBoard.FREQUENCIES[i]-probability);
 
-            output.WriteLine($"{ch} : {BoggleBoard.FREQUENCIES[i]} vs {probability} ; Difference : {BoggleBoard.FREQUENCIES[i]-probability}");
+            //_testOutputHelper.WriteLine($"{ch} : {BoggleBoard.FREQUENCIES[i]} vs {probability} ; Difference : {BoggleBoard.FREQUENCIES[i]-probability}");
         }
-        output.WriteLine($"total difference = {differenceTotal}");
-        Assert.True(differenceTotal<0.0001);
-    }
-
-    private bool TheyAreVerySimilar(BoggleBoard a,BoggleBoard b)
-    {
-        int equals=0;
-        for(int i=0;i<a.rows;i++)
-        {
-            for(int j=0;j<a.cols;j++)
-                if(a.getLetter(i,j)==b.getLetter(i,j)) equals++;
-        }
-         return equals>= (a.rows*a.cols)/3;
+        _testOutputHelper.WriteLine($"total difference = {differenceTotal}");
+        Assert.True(differenceTotal<limit);
     }
 }

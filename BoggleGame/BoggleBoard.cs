@@ -34,8 +34,7 @@ public class BoggleBoard
         "CEIILT", "CEILPT", "CEIPST", "DDHNOT", "DHHLOR",
         "DHLNOR", "DHLNOR", "EIIITT", "EMOTTT", "ENSSSU",
         "FIPRSY", "GORRVW", "IPRRRY", "NOOTUW", "OOOTTU"
-    };
-    static Random Rand = new Random(17);
+    };    
     // letters and frequencies of letters in the English alphabet
     public static readonly string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static readonly double[] FREQUENCIES = {
@@ -46,6 +45,7 @@ public class BoggleBoard
         0.01974, 0.00074
     };
 
+     private static readonly  Random[] RANDOMS;
     private static readonly double[] FREQUENCIES_INTERVALS;
 
     private char[][] board;
@@ -58,6 +58,23 @@ public class BoggleBoard
             else
                 FREQUENCIES_INTERVALS[i] = FREQUENCIES_INTERVALS[i-1] + FREQUENCIES[i];
         }
+
+        RANDOMS = Utils.GetPrimes(65537).Select(it=>new Random(it)).Union(new[]{new Random()}).ToArray();
+        // RANDOMS = new Random[]
+        // {
+        //     new Random(),
+        //     new Random(3),
+        //     new Random(7),
+        //     new Random(31),
+        //     new Random(127),
+        //     new Random(23),
+        //     new Random(113),
+        //     new Random(359),
+        //     new Random(5),
+        //     new Random(17),
+        //     new Random(257),
+        //     new Random(65537)
+        // };
     }
 
     // Initializes a random 4-by-4 Boggle board.
@@ -89,9 +106,11 @@ public class BoggleBoard
         }
     }
 
-    public static char GetNextRandomChar()
+    public char GetNextRandomChar()
     {
-        var num = Rand.NextDouble();
+        var rnd = Rand;
+        lock(rnd){
+        var num = rnd.NextDouble();
         if(num<0.0 || num>1.0) throw new Exception("Out of range");
         int i = 0;
         int j = FREQUENCIES.Length-1;
@@ -121,41 +140,45 @@ public class BoggleBoard
 
         }
         return ALPHABET[j];
+        }
     }
 
     // Initializes a Boggle board from the specified filename.
-    public BoggleBoard(string filename){
-        using(var sr = new StreamReader(filename)){
-            var line =  sr.ReadLine();
-            if(line==null) 
-            {
-                board = new char[0][];
-                return;
-            }
-            var dim = line.Split(' ');
-            rows = int.Parse(dim[0]);
-            cols = int.Parse(dim[1]);
-            board = new char[rows][];
-            for(int i=0;i<rows;i++){
-                line = sr.ReadLine();
-                if(line==null) break;
-                board[i] = new char[cols];
-                int k = 0;
-                for(int c=0;c<line.Length && k<cols;c++){
-                    if(isValidCharacter(line[c])){
-                        board[i][k] = line[c];
-                        if(line.IsQu(c)){
-                            board[i][k] = Constants.QU;
-                            c++;
-                        }
-                        else{
-                            board[i][k] = line[c];
-                        }                       
-                       k++; 
-                    }
-                }
-            }        
+    public BoggleBoard(StreamReader stream){
+        if(stream==null)
+        {
+            board = new char[0][];
+            return;
         }
+        var line =  stream.ReadLine();
+        if(line==null) 
+        {
+            board = new char[0][];
+            return;
+        }
+        var dim = line.Split(' ');
+        rows = int.Parse(dim[0]);
+        cols = int.Parse(dim[1]);
+        board = new char[rows][];
+        for(int i=0;i<rows;i++){
+            line = stream.ReadLine();
+            if(line==null) break;
+            board[i] = new char[cols];
+            int k = 0;
+            for(int c=0;c<line.Length && k<cols;c++){
+                if(isValidCharacter(line[c])){
+                    board[i][k] = line[c];
+                    if(line.IsQu(c)){
+                        board[i][k] = Constants.QU;
+                        c++;
+                    }
+                    else{
+                        board[i][k] = line[c];
+                    }                       
+                   k++; 
+                }
+            }
+        }     
     }
 
     // Initializes a Boggle board from the 2d char array.
@@ -219,6 +242,9 @@ public class BoggleBoard
         board = new char[rows][];
         for(int k=0;k<rows;k++) board[k] = new char[cols];
     }
+
+    private Random Rand =>RANDOMS[DateTime.Now.Ticks%RANDOMS.Length];//new Random(Guid.NewGuid().GetHashCode());//
+    
     /*
     1- Mersenne primes: These are prime numbers of the form 2^p - 1, where p is also a prime number. Mersenne primes have been extensively studied for their randomness properties 
     and have been used in many cryptographic applications. Some well-known Mersenne primes include 3, 7, 31, and 127.
