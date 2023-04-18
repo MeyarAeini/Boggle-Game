@@ -35,7 +35,7 @@ public class BoggleSolverBasicTests: TestCollection
        Assert.True(words.Count()>=1);
     }
 
-    [Theory,TestOrder(3)]
+    [Theory(DisplayName = "Performance test on solving boggle game"),TestOrder(3)]
     [InlineData("yawl")]
     public  async Task PerformanceTest(string dictionary)
     {
@@ -58,7 +58,8 @@ public class BoggleSolverBasicTests: TestCollection
                 {
                     biggerThanOneSecond++;
                 }
-                if(x>100000)
+                var limit =Math.Pow(2,i*j/10) * 1000;
+                if(x>limit && x>1200)
                 {
                     Assert.Fail($"{biggerThanOneSecond}");
                 }

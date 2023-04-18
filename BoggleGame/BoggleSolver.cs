@@ -59,13 +59,12 @@ public class BoggleSolver
 
     public IEnumerable<string> getAllValidWords(BoggleBoard board)
     {
-        var words = new Dictionary<string,int>(); 
+        var words = new HashSet<string>(); 
         var notWords = new HashSet<string>();
         var explorer = new BoardExplorer();
         explorer.ExplorDFS(board, it => {            
             if(notWords.Contains(it)) return false; //already checked , it does not exist.
-            if(words.ContainsKey(it)) { // already checked it does exist as complete word
-                words[it]++;
+            if(words.Contains(it)) { // already checked it does exist as complete word
                 return true;
             }
             var exist = index.Root.AnyStartWith(it);
@@ -74,10 +73,10 @@ public class BoggleSolver
                 return false;
             }
             if(exist.Item2) // it is complete word, add to the result
-                words.Add(it,1);
+                words.Add(it);
             return true;
-        });       
-       return words.Keys.Select(it=>it.Replace(Constants.QU.ToString(),Constants.QuValue));
+        });   
+        return words.Select(it=>it.translateQ());
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
