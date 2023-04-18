@@ -18,7 +18,7 @@ public class BoggleFileRepository
 
     public IEnumerable<string> GetDictionaries()
     {
-       return GetFileNamesStartWith(_option.DictionaryPrefix);
+        return GetFileNamesStartWith(_option.DictionaryPrefix);
     }
 
     public IEnumerable<string> GetBoards()

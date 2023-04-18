@@ -1,9 +1,14 @@
 
+using BoggleGame;
+
 const string  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services
+            .AddTransient<BoggleFileRepository>()
+            .Configure<BoggleFileOptions>(config => builder.Configuration?.GetSection("BoggleFiles").Bind(config));
+            
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

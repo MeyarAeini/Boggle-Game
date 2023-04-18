@@ -39,7 +39,7 @@ public class BoggleSolverController : ControllerBase
     public async Task<string> GetBoardAsync(string boardName)
     {
         using(var boardFile = await boggleFileRepository.GetBoardStreamReaderAsync(boardName))
-            return await boardFile.ReadToEndAsync();
+        return await boardFile.ReadToEndAsync();
     }
 
     [HttpGet("GetDictionaries")]

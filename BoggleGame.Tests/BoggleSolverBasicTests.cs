@@ -36,8 +36,8 @@ public class BoggleSolverBasicTests: TestCollection
     }
 
     [Theory(DisplayName = "Performance test on solving boggle game"),TestOrder(3)]
-    [InlineData("yawl")]
-    public  async Task PerformanceTest(string dictionary)
+    [InlineData("yawl",6)]
+    public  async Task PerformanceTest(string dictionary, int maxCol)
     {
         System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         watch.Start();
@@ -49,9 +49,9 @@ public class BoggleSolverBasicTests: TestCollection
             Assert.Fail("boggle solver is null");
         }
         int biggerThanOneSecond = 0;
-        for(int i=1;i<11;i++)
+        for(int i=1;i<maxCol;i++)
         {
-            for(int j=1;j<11;j++)
+            for(int j=1;j<maxCol;j++)
             {
                 var x = PerformanceTestBoggleSolver(i, j, solver);
                 if(x>1000)
