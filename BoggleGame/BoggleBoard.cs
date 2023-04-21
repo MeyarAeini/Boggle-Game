@@ -60,21 +60,6 @@ public class BoggleBoard
         }
 
         RANDOMS = Utils.GetPrimes(65537).Select(it=>new Random(it)).Union(new[]{new Random()}).ToArray();
-        // RANDOMS = new Random[]
-        // {
-        //     new Random(),
-        //     new Random(3),
-        //     new Random(7),
-        //     new Random(31),
-        //     new Random(127),
-        //     new Random(23),
-        //     new Random(113),
-        //     new Random(359),
-        //     new Random(5),
-        //     new Random(17),
-        //     new Random(257),
-        //     new Random(65537)
-        // };
     }
 
     // Initializes a random 4-by-4 Boggle board.
@@ -211,9 +196,7 @@ public class BoggleBoard
     {
         StringBuilder sb = new StringBuilder();
         for(int i=0;i<rows;i++){
-            for(int j=0;j<cols;j++){
-                sb.Append($" {board[i][j]} ");
-            }
+            sb.AppendJoin(' ',board[i]);
             sb.AppendLine();
         }
         return sb.ToString();

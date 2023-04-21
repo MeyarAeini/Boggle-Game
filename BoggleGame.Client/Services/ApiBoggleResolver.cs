@@ -50,6 +50,25 @@ public class ApiBoggleResolver : IBoggleResolver
             return brd;
         }
     }
+    public async Task<char[][]> GetBoard(int m, int n)
+    {
+        var board = await httpClient.GetStringAsync($"BoggleSolver/GetBoard/{m}/{n}");
+        char[][] brd = new char[m][];
+        var lines = board.Split(Environment.NewLine);
+        for(int i=0;i<m;i++)
+        {
+            brd[i] = new char[n];
+            var chars = lines[i].Split(' ');
+            for(int j=0;j<n;j++){
+                brd[i][j] = chars[j][0];
+            }
+        }
+        return brd;
+    }
+    public async Task<Dictionary<string,int>> SolveBoard(char[][] board){
+        using var response = await httpClient.PostAsJsonAsync($"BoggleSolver/SolveBoard",board);
+        return await response.Content.ReadFromJsonAsync<Dictionary<string,int>>();
+    }
     public async Task<IEnumerable<string>> Solve(string dictionary, string board)
     {
         var request = new BoggleGameSolveRequest(dictionary,board);

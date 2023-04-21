@@ -1,0 +1,24 @@
+@if (Words == null)
+{
+    <p><em>Loading valid words...</em></p>
+}
+else
+{
+    <p>Total <div>@Words.Where(it=>it.Value>0).Sum(it=>it.Value)</div></p>
+    <table class="path">
+        <tbody>
+            @foreach (var wrd in Words)
+            {
+                <tr> 
+                    <td>@wrd.Key (@wrd.Value)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    [Parameter]
+    public  IDictionary<string,int>? Words {get;set;}
+}

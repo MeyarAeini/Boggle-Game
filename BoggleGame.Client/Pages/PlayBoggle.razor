@@ -1,0 +1,123 @@
+﻿@page "/playboggle"
+@inject BoggleGame.Client.Services.IBoggleResolver boggleResolver
+
+<PageTitle>Play a boggle game</PageTitle>
+
+<div class="container">
+  <div class="toppane">
+    <p>@word</p>
+    <button @onclick="@addWord">Add</button>
+  </div>
+  <div class="d-flex">
+    <div class="leftpane">
+        <WordList Words="submitteds"/>
+    </div>
+    <div class="middlepane">
+        @if (board == null || boardState == null)
+        {
+            <p><em>Loading the board...</em></p>
+        }
+        else
+        {
+            <table>
+                <tbody>
+                    @for(int i=0;i<m;i++)
+                    {
+                        <tr>
+                            @for(int j=0;j<n;j++)
+                            {
+                                int index= i;
+                                int jndex = j;
+                                <button disabled="@boardState[i][j]" @onclick="@(() => CellClicked(index,jndex))">
+                                    @board[i][j]
+                                </button>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>   
+        }     
+    </div>
+    <div class="rightpane">
+      <WordList Words="wordScores"/>
+      @* <WordList Words="wordScores.Keys"/> *@
+    </div>
+  </div>
+</div>
+
+@code {
+    private char[][]? board;
+    private bool[][]? boardState;
+    private Dictionary<string,int>? submitteds;
+    private int m = 4;
+    private int n = 4;
+    private Stack<(int,int)>? path;
+    string word = string.Empty;
+    IDictionary<string,int>? wordScores;
+    protected override async Task OnInitializedAsync()
+    {
+        path = new Stack<(int,int)>();
+        board = await boggleResolver.GetBoard(m,n);           
+        setBoardState();
+        wordScores = await boggleResolver.SolveBoard(board);  
+        submitteds  = new Dictionary<string,int>();
+    }
+
+    private void addWord()
+    {
+        if(!string.IsNullOrEmpty(word))
+        {
+            var wrd = word.Replace("^","QU");
+            if(!submitteds.ContainsKey(wrd))
+                submitteds.Add(wrd,wordScores.ContainsKey(wrd)?wordScores[wrd]:-1);
+            path.Clear();
+            word = string.Empty;
+            setBoardState();
+        }
+    }
+    
+    private void CellClicked(int i,int j)
+    {
+        if(path != null){
+            path.Push((i,j));
+            word+=board[i][j]=='^'?"QU":board[i][j].ToString();
+        }
+        setBoardState();
+    }
+
+    private void setBoardState()
+    {
+        boardState = null;
+        boardState = new bool[m][];
+        for(int i=0;i<m;i++){
+            boardState[i] = new bool[n];
+        }    
+        if(path == null || path.Count==0)
+        {
+            for(int i=0;i<m;i++)
+            {
+                for(int j=0;j<n;j++)
+                {
+                    boardState[i][j] = false;
+                }
+            }
+            return;
+        }
+
+        var top = path.Peek();
+        for(int i=0;i<m;i++)
+        {
+            for(int j=0;j<n;j++)
+            {
+                boardState[i][j] = Math.Abs(top.Item1 - i)>1 || Math.Abs(top.Item2 - j)>1 || path.Any(it=>it.Item1==i && it.Item2==j);
+            }
+        }
+    }
+
+    private bool isClicked(int i,int j)
+    {
+        return path != null && path.Any(it=>it.Item1==i && it.Item2==j);
+    }
+
+    
+}
