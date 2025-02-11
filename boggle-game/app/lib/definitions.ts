@@ -3,7 +3,8 @@ export type BoardState = {
     cursor: BoardPosition,
     word: string,
     path: string,
-    visited: boolean[]
+    visited: boolean[],
+    visiting: boolean
 };
 
 export type BoardPosition = {
