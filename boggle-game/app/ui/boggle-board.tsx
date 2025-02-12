@@ -4,6 +4,7 @@ import BuggleLetter from "./boggle-letter";
 import { getBoard } from "../lib/randomBoardGenerator";
 import { BoardState } from "../lib/definitions";
 import { useState, useEffect } from "react";
+import Timer from "./timer";
 
 export default function BoggleBoard() {
     //board current state
@@ -89,36 +90,47 @@ export default function BoggleBoard() {
 
     return (
         <>
-            <div className="grid grid-cols-4 gap-2">
-                {
-                    state.board.flat().map(
-                        (letter: string, index: number) =>
-                        (<BuggleLetter key={index}
-                            letter={letter}
-                            visited={state.visited[index]}
-                            onVisit={() => {}}
-                            onVisitStart={() => onVisitStart(index)}
-                            onVisitStop={() => onAdd()}
-                            onVisiting={() => onVisiting(index)}
-                        />))
-                }
+        <div className="flex flex-col items-center justify-center">
+            {/* Top Section: Timer and Current Word */}
+            <div className="w-full max-w-2xl mb-6">
+                <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
+                <div className="text-lg font-semibold">
+                    <Timer/>
+                </div>
+                <div className="text-lg font-semibold">
+                    <span className="text-green-500">{state.word}</span>
+                </div>
+                </div>
             </div>
-            <div>
-                current word : {state.word}
+            <div className="w-full max-w-4xl flex gap-6">
+                <div className="w-full max-w-2xl mb-6">
+                    <div className="grid grid-cols-4 gap-2 bg-white p-4 rounded-lg shadow-md">
+                        {
+                            state.board.flat().map(
+                                (letter: string, index: number) =>
+                                (<BuggleLetter key={index}
+                                    letter={letter}
+                                    visited={state.visited[index]}
+                                    onVisit={() => {}}
+                                    onVisitStart={() => onVisitStart(index)}
+                                    onVisitStop={() => onAdd()}
+                                    onVisiting={() => onVisiting(index)}
+                                />))
+                        }
+                    </div>
+                </div>
+                {/* Added Words */}
+                <div className="flex-1 bg-white p-4 rounded-lg shadow-md">
+                    <ul className="space-y-2 overflow-y-auto" style={{ maxHeight: '270px' }}>
+                        {[...words.entries()].map(([path, word]) => (
+                        <li key={path} className="bg-gray-50 p-2 rounded-md shadow-sm">
+                            {word}
+                        </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
-            {/* <button onClick={onAdd} className="w-16 h-16 bg-green-500 flex items-center justify-center text-xl font-bold text-white rounded-lg shadow-md">Add</button> */}
-            <div>
-                current path : {state.path}
-            </div>
-            <div>
-                <div>added words</div>
-                <ul>
-                    {[...words.entries()].map(([path, word]) => {
-                        return (<li key={path}>{word}</li>)
-                    })}
-                </ul>
-            </div>
-
+        </div>
         </>
     )
 }
