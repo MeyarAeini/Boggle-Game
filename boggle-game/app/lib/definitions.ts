@@ -11,3 +11,9 @@ export type BoardPosition = {
     i: number,
     j: number
 };
+
+export type BoardPath = {
+    path:string,
+    word:string,
+    game?:string
+}

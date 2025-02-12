@@ -2,9 +2,10 @@
 
 import BuggleLetter from "./boggle-letter";
 import { getBoard } from "../lib/randomBoardGenerator";
-import { BoardState } from "../lib/definitions";
+import { BoardState,BoardPath } from "../lib/definitions";
 import { useState, useEffect } from "react";
 import Timer from "./timer";
+import useSocket from "../lib/useSocket";
 
 export default function BoggleBoard() {
     //board current state
@@ -20,12 +21,19 @@ export default function BoggleBoard() {
 
     //added words
     const [words, setWords] = useState<Map<string, string>>(new Map());
+    
+    //connect to socket
+    const {connected,send,join} = useSocket((data:BoardPath)=>{
+        if (!data.word || data.word.length == 0 || words.has(data.path)) return;
+        setWords(prev => new Map(prev).set(data.path, data.word));
+    });
 
     useEffect(() => {
+        join("test");
         setState((prev: BoardState) => {
             return { ...prev, board: getBoard() }
         })
-    }, []);
+    }, [connected]);
     
     function onVisit(index: number) {
         const i = Math.floor(index / 4);
@@ -62,8 +70,7 @@ export default function BoggleBoard() {
                 path: index.toString(16),
                 visited: newVisited,
                 cursor: { i, j },
-                visiting:true,
-                visitingType:'trace'
+                visiting:true
             };
         });
     }
@@ -75,6 +82,7 @@ export default function BoggleBoard() {
 
     function onAdd() {
         if (!state.word || state.word.length == 0 || words.has(state.path)) return;
+        send({path:state.path, word:state.word});
         setWords(prev => new Map(prev).set(state.path, state.word));
         setState(s => {
             return {
