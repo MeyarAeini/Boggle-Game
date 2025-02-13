@@ -1,5 +1,3 @@
-import { isGeneratorFunction } from "util/types";
-
 class TrieNode{
     children:{[key:string]:TrieNode};
     isword:boolean;
