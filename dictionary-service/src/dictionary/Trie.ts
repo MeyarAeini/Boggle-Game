@@ -1,4 +1,4 @@
-class TrieNode{
+export class TrieNode{
     children:{[key:string]:TrieNode};
     isword:boolean;
     constructor(){

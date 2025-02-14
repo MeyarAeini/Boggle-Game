@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { DictionaryService } from './dictionary.service';
+import {BoardPath} from './definitions';
 import { Trie } from './Trie';
 
 @Controller('dictionary')
@@ -11,6 +12,17 @@ export class DictionaryController {
     @Get(':word')
     exist(@Param('word') word:string) : boolean{
         return this.service.has(word);
+    }
+
+    /*
+    curl -X POST "http://localhost:3003/dictionary" \
+      -H "Content-Type: application/json" \
+      -d '{"board":["abcd", "efgh", "ijkl", "mnop"]}' |jq
+    */
+    @Post()
+    findwordsInBoard(@Body("board") board:string[]):BoardPath[]{
+        console.log("request");
+        return this.service.findAllValidPath(board);
     }
 
 }
