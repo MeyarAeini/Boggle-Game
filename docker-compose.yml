@@ -9,28 +9,34 @@ services:
     environment:
       - DICTIONARY_APP_API_URL=http://dictionary-service:3003  # Internal service communication
     networks:
-      - mynetwork
+      - boggle-network
   
   session-service:
     build: ./boggle-session-server
     ports:
       - "4000:4000"
+    volumes:
+      - /app/node-modules
+      - ./dictionary-service:/src
     environment:
       - SESSION_APP_API_URL=http://localhost:4000  # Internal service communication
     networks:
-      - mynetwork
+      - boggle-network
 
   ui:
     build: ./boggle-game
     ports : 
       - "3717:3000"
+    volumes:
+      - /app/node-modules
+      - ./boggle-game:/app
     environment:
       - UI_URL=http://ui:3000  # Internal service communication
     depends_on:
       - dictionary-service
       - session-service
     networks:
-      - mynetwork
+      - boggle-network
 networks:
-  mynetwork:
+  boggle-network:
     driver: bridge
