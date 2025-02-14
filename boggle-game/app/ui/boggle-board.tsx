@@ -98,9 +98,11 @@ export default function BoggleBoard() {
         });
     }
 
+    const API_URL = process.env.DICTIONARY_APP_API_URL || "http://localhost:3003";
+
     function isaword(path: string, word:string) {
         const checkWord = async () => {
-            const response = await fetch(`http://localhost:3003/dictionary/${word}`);
+            const response = await fetch(`${API_URL}/dictionary/${word}`);
             const result = await response.json();
             setWords(prev => new Map(prev).set(path, { word: word, exist: result }));
         };

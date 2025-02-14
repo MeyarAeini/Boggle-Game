@@ -2,6 +2,7 @@ import { io,Socket  } from "socket.io-client";
 import { useState,useEffect } from "react";
 import { BoardPath } from "./definitions";
 
+const SESSION_URL = process.env.SESSION_APP_API_URL || "http://localhost:4000";
 
 export default function useSocket(onWordFound?:(data:BoardPath)=>void){
     const [connected,setConnected] = useState(false);
@@ -9,7 +10,7 @@ export default function useSocket(onWordFound?:(data:BoardPath)=>void){
     const [game,setGame] = useState("");
     
     useEffect(()=>{
-        const iosocket = io("http://localhost:4000");
+        const iosocket = io(SESSION_URL);
         setSocket(iosocket);
 
         iosocket.on("connect",()=>{            

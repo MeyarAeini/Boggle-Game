@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  dictionary-service:
+    build: ./dictionary-service
+    ports: 
+      - "3003:3003"
+
+    environment:
+      - DICTIONARY_APP_API_URL=http://dictionary-service:3003  # Internal service communication
+    networks:
+      - mynetwork
+  
+  session-service:
+    build: ./boggle-session-server
+    ports:
+      - "4000:4000"
+    environment:
+      - SESSION_APP_API_URL=http://localhost:4000  # Internal service communication
+    networks:
+      - mynetwork
+
+  ui:
+    build: ./boggle-game
+    ports : 
+      - "3717:3000"
+    environment:
+      - UI_URL=http://ui:3000  # Internal service communication
+    depends_on:
+      - dictionary-service
+      - session-service
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    driver: bridge

@@ -1,5 +1,5 @@
 {
-  "name": "boggle-session-sever",
+  "name": "boggle-session-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
