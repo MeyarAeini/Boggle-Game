@@ -14,7 +14,7 @@ export class AuthService {
 
 
     private getPayload(user: any):any {
-        return { sub: user.userId, username: user.username };
+        return { sub: user.userId, username: user.username, email:user.email };
     }
 
     async getAccessToken(user: any): Promise<string> {
@@ -34,8 +34,8 @@ export class AuthService {
         };
     }
 
-    async validateUser(username: string, pass: string) {
-        const user = await this.userService.findOne(username);
+    async validateUser(email: string, pass: string) {
+        const user = await this.userService.findByEmail(email);
         if (user?.password !== pass)
             return null;
 

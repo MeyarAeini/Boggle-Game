@@ -32,6 +32,7 @@ services:
       - ./boggle-game:/app
     environment:
       - UI_URL=http://ui:3000  # Internal service communication
+      - NEXTAUTH_URL=http://localhost:3717
     depends_on:
       - dictionary-service
       - session-service

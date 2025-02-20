@@ -7,8 +7,8 @@ export class UserService {
         {
             userId : 1,
             username:'admin',
-            password:'1234',
-            email:'mail@mail.mil',
+            password:'123456',
+            email:'admin@admin.admin',
         }
     ];
 
