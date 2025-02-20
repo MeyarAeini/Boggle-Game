@@ -7,8 +7,10 @@ import { useState, useEffect } from "react";
 import Timer from "./timer";
 import useSocket from "../lib/useSocket";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
 
 export default function BoggleBoard() {
+    const { data: session } = useSession({ required: true });
     //board current state
     const [state, setState] = useState<BoardState>(
         {
@@ -30,7 +32,7 @@ export default function BoggleBoard() {
     });
 
     useEffect(() => {
-        join("test");
+        join(session?.user?.email ?? "","test");
         setState((prev: BoardState) => {
             return { ...prev, board: getBoard() }
         })

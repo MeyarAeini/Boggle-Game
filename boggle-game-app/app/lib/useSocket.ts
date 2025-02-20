@@ -2,7 +2,7 @@ import { io,Socket  } from "socket.io-client";
 import { useState,useEffect } from "react";
 import { BoardPath } from "./definitions";
 
-const SESSION_URL = process.env.SESSION_APP_API_URL || "http://localhost:4000";
+const SESSION_URL = "http://localhost:3003";
 
 export default function useSocket(onWordFound?:(data:BoardPath)=>void){
     const [connected,setConnected] = useState(false);
@@ -34,9 +34,9 @@ export default function useSocket(onWordFound?:(data:BoardPath)=>void){
             socket.emit("apply-word",{...message,game:game});
     };
 
-    const join = (gameId:string)=>{        
+    const join = (email:string,gameId:string)=>{        
         if(socket){
-            socket.emit("join-game",gameId);
+            socket.emit("join-game",{email,gameId});
             setGame(gameId);
         }
     }

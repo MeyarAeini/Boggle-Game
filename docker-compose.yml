@@ -1,41 +1,28 @@
 version: '3'
 
 services:
-  dictionary-service:
-    build: ./dictionary-service
+  boggle-game-server:
+    build: ./boggle-game-server
     ports: 
       - "3003:3003"
 
     environment:
-      - DICTIONARY_APP_API_URL=http://dictionary-service:3003  # Internal service communication
+      - DICTIONARY_APP_API_URL=http://boggle-game-server:3003  # Internal service communication
     networks:
       - boggle-network
   
-  session-service:
-    build: ./boggle-session-server
-    ports:
-      - "4000:4000"
-    volumes:
-      - /app/node-modules
-      - ./dictionary-service:/src
-    environment:
-      - SESSION_APP_API_URL=http://localhost:4000  # Internal service communication
-    networks:
-      - boggle-network
-
-  ui:
-    build: ./boggle-game
+  boggle-game-app:
+    build: ./boggle-game-app
     ports : 
       - "3717:3000"
     volumes:
       - /app/node-modules
-      - ./boggle-game:/app
+      - ./boggle-game-app:/app
     environment:
-      - UI_URL=http://ui:3000  # Internal service communication
+      - UI_URL=http://boggle-game-app:3000  # Internal service communication
       - NEXTAUTH_URL=http://localhost:3717
     depends_on:
-      - dictionary-service
-      - session-service
+      - boggle-game-server
     networks:
       - boggle-network
 networks:
