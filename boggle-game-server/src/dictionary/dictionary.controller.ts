@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { DictionaryService } from './dictionary.service';
 import {BoardPath} from './definitions';
-import { Trie } from './Trie';
+import { Trie } from './trie';
 
 @Controller('dictionary')
 export class DictionaryController {

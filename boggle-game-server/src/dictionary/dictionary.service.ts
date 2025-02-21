@@ -1,5 +1,5 @@
 import { Injectable,OnModuleInit } from '@nestjs/common';
-import { Trie,TrieNode } from './Trie';
+import { Trie,TrieNode } from './trie';
 import * as fs from 'fs';
 import * as path from 'path';
 import {BoardPath} from './definitions';

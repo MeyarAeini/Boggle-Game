@@ -1,18 +1,32 @@
-version: '3'
+version: '3.1'
 
 services:
+  mongodb:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes :
+      - mongodb_data:/data/db
+    networks:
+      - boggle-network
+
   boggle-game-server:
     build: ./boggle-game-server
     ports: 
       - "3003:3003"
-
+    restart: always
     environment:
       - DICTIONARY_APP_API_URL=http://boggle-game-server:3003  # Internal service communication
+    depends_on:
+      - mongodb
     networks:
       - boggle-network
   
   boggle-game-app:
     build: ./boggle-game-app
+    restart: always
     ports : 
       - "3717:3000"
     volumes:
@@ -28,3 +42,5 @@ services:
 networks:
   boggle-network:
     driver: bridge
+volumes:
+  mongodb_data:

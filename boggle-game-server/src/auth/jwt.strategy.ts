@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt'){
         });
     }
     async validate(payload:any): Promise<any> {
-        return {userId:payload.sub,username:payload.username,email:payload.email};
+        return {id:payload.sub,name:payload.name,email:payload.email};
     }
 
 }
@@ -30,7 +30,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
     }
 
     async validate(payload:any): Promise<any> {
-        return {userId:payload.sub,username:payload.username,email:payload.email};
+        return {id:payload.sub,name:payload.name,email:payload.email};
     }
 
 }

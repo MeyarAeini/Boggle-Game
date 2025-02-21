@@ -14,7 +14,7 @@ export class AuthService {
 
 
     private getPayload(user: any):any {
-        return { sub: user.userId, username: user.username, email:user.email };
+        return { sub: user.id, name: user.name, email:user.email };
     }
 
     async getAccessToken(user: any): Promise<string> {
@@ -39,8 +39,11 @@ export class AuthService {
         if (user?.password !== pass)
             return null;
 
-        const { password, ...result } = user;
-        return result;
+        return {
+            id:user.id,
+            name:user.name,
+            email:user.email
+        };
     }
 
     async validateOAuthUser(usr: any) {

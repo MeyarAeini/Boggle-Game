@@ -12,7 +12,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth(
                     const parsedCredentials = z.object({ email: z.string().email(), password: z.string().min(6) })
                         .safeParse(credentials);
                     if (parsedCredentials.success) {
-                        const res = await fetch("http://boggle-game-dictionary-service-1:3003/auth/login", {
+                        const res = await fetch("http://boggle-game-boggle-game-server-1:3003/auth/login", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(parsedCredentials.data),
@@ -22,14 +22,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth(
                             throw new Error(data.message || "Invalid credentials");
                         }
 
-                        const profile = await fetch(`http://boggle-game-dictionary-service-1:3003/auth/profile`, {
+                        const profile = await fetch(`http://boggle-game-boggle-game-server-1:3003/auth/profile`, {
                             method: "GET",
                             headers: { "Authorization": `Bearer ${data.access_token}` },
                         });
                         const user = await profile.json();
                         return {
-                            id: user.userId,
-                            name: user.username,
+                            id: user.id,
+                            name: user.name,
                             email: user.email,
                             accessToken: data.access_token,
                             refreshToken: data.refresh_token,

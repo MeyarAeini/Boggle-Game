@@ -6,10 +6,31 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from './gateway/events.gateway';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GameModule } from './game/game.module';
+import { BoardModule } from './board/board.module';
+import { WordSubmissionModule } from './word-submission/word-submission.module';
 
 @Module({
-  imports: [DictionaryModule, AuthModule, UserModule,ConfigModule.forRoot()],
-  controllers: [AppController],
-  providers: [AppService,AppGateway],
+  imports:
+    [
+      DictionaryModule,
+      AuthModule,
+      UserModule,
+      ConfigModule.forRoot(),
+      MongooseModule.forRoot('mongodb://root:example@mongodb:27017/boggle?authSource=admin'),
+      GameModule,
+      BoardModule,
+      WordSubmissionModule
+    ],
+  controllers:
+    [
+      AppController
+    ],
+  providers:
+    [
+      AppService,
+      AppGateway
+    ],
 })
-export class AppModule {}
+export class AppModule { }
