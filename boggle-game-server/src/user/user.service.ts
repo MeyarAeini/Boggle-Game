@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRegistrationDto } from './dtos/registeration.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class UserService {
@@ -18,5 +18,9 @@ export class UserService {
     async register(dto: UserRegistrationDto): Promise<User> {
         const usr = new this.userModel(dto);
         return usr.save();
+    }
+
+    async findOne(id: string): Promise<User | null> {
+        return this.userModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
     }
 }

@@ -14,12 +14,11 @@ export class AuthService {
 
 
     private getPayload(user: any):any {
-        return { sub: user.id, name: user.name, email:user.email };
+        return { sub: user.id??user.sub, name: user.name, email:user.email };
     }
 
     async getAccessToken(user: any): Promise<string> {
         const payload = this.getPayload(user);
-
         return this.jwtService.signAsync(payload);
     }
 

@@ -1,4 +1,19 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, UseGuards } from '@nestjs/common';
+import { BoardService } from './board.service';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { JwtGuard } from 'src/auth/guards';
 
 @Controller('board')
-export class BoardController {}
+export class BoardController {
+    constructor(
+        private boardService : BoardService
+    ){}
+
+    @UseGuards(JwtGuard)
+    @Post()
+    async generateBoard(@GetUser('id') id){
+        console.log(`generateBoard : ${id}`);
+        const board = await this.boardService.generateBoard(id);
+        return board._id;
+    }
+}

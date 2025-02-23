@@ -17,3 +17,9 @@ export type BoardPath = {
     word:string,
     game?:string
 }
+
+export type Game = {
+    id:Number,
+    name:string,
+    score?:Number
+}

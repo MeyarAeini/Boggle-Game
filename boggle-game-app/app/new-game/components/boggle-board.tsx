@@ -1,13 +1,13 @@
 'use client';
 
 import BuggleLetter from "./boggle-letter";
-import { getBoard } from "../lib/randomBoardGenerator";
-import { BoardState, BoardPath } from "../lib/definitions";
+import { BoardState, BoardPath } from "../../lib/definitions";
 import { useState, useEffect } from "react";
 import Timer from "./timer";
-import useSocket from "../lib/useSocket";
+import useSocket from "../../lib/useSocket";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
+import { getBoard } from "@/app/services/board.service";
 
 export default function BoggleBoard() {
     const { data: session } = useSession({ required: true });
@@ -33,9 +33,15 @@ export default function BoggleBoard() {
 
     useEffect(() => {
         join(session?.user?.email ?? "","test");
-        setState((prev: BoardState) => {
-            return { ...prev, board: getBoard() }
-        })
+        const fetchBoard = async ()=>{
+            const brd = await getBoard(session?.user?.accessToken);
+            setState((prev: BoardState)  => {
+                return { ...prev, board: brd ?? [] };
+            });
+        };
+
+        fetchBoard();
+        
     }, [connected]);
 
     function onVisit(index: number) {

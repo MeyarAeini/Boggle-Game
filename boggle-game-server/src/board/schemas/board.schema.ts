@@ -6,14 +6,14 @@ export type GameBoardDocument = HydratedDocument<GameBoard>
 
 @Schema()
 export class GameBoard {
+    @Prop({ type: String, unique: true, required: true, _id: true })
+    _id: string;
+
     @Prop({ type: mongoose.Schema.ObjectId, ref: 'User' })
     creator: User;
 
     @Prop()
-    creationDate: Date;
-
-    @Prop()
-    value: string;
+    creationDate: Date;    
 
     @Prop({ type: Boolean })
     generated: boolean;

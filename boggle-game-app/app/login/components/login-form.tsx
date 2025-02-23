@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { authenticate } from "../lib/actions";
+import { authenticate } from "../../lib/actions";
 import { getCsrfToken, useSession } from "next-auth/react";
 
 export default function LoginForm() {
