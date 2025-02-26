@@ -4,7 +4,7 @@ export type BoardState = {
     word: string,
     path: string,
     visited: boolean[],
-    visiting: boolean
+    visiting: boolean,
 };
 
 export type BoardPosition = {

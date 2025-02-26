@@ -1,12 +1,16 @@
 import {
     Body,
     Controller,
-    Get, 
+    Get,
     Param,
-    Post
+    Post,
+    UseGuards
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import { CreateGameSessionDto } from './dtos/create-game-session.dto';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { GameSessionDto } from './dtos/game-session.dto';
+import { JwtGuard } from 'src/auth/guards';
 
 @Controller('game')
 export class GameController {
@@ -14,11 +18,29 @@ export class GameController {
         private gameService: GameService
     ) { }
 
+    @UseGuards(JwtGuard)
     @Post()
-    async createGameSession(@Body() dto: CreateGameSessionDto) {
-        return this.gameService.createSession(dto);
+    async createGameSession(@GetUser('id') userId, @Body() dto: CreateGameSessionDto) {
+        const session = await this.gameService.createSession(userId);
+        return {
+                sessionId: session?._id,
+                board: session?.board?._id
+            };
     }
 
+    @UseGuards(JwtGuard)
+    @Post('start')
+    async startGameSession(@Body() dto: GameSessionDto) {
+        return this.gameService.startSession(dto.sessionId);
+    }
+
+    @UseGuards(JwtGuard)
+    @Post('end')
+    async endGameSession(@Body() dto: GameSessionDto) {
+        return this.gameService.endSession(dto.sessionId);
+    }
+
+    @UseGuards(JwtGuard)
     @Get(':id')
     async getGameSession(@Param('id') id: string) {
         return this.gameService.findOne(id);

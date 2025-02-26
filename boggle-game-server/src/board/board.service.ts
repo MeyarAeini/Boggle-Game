@@ -23,4 +23,8 @@ export class BoardService {
         })
         return model.save();
     }
+
+    async findOne(id: string): Promise<GameBoard | null> {
+        return this.boardModel.findOne({ value: id }).exec();
+    }
 }

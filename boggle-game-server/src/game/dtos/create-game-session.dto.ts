@@ -1,3 +1,3 @@
 export class CreateGameSessionDto{
-    organiser:string
+    organiser:string;
 }

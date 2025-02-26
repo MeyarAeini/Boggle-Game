@@ -14,6 +14,7 @@ import { UserModule } from 'src/user/user.module';
     UserModule,
   ],
   providers: [BoardService],
-  controllers: [BoardController]
+  controllers: [BoardController],
+  exports: [BoardService]
 })
 export class BoardModule { }

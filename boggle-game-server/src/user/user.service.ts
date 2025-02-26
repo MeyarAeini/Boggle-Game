@@ -20,7 +20,7 @@ export class UserService {
         return usr.save();
     }
 
-    async findOne(id: string): Promise<User | null> {
+    async  findOne(id: string): Promise<User | null> {
         return this.userModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
     }
 }

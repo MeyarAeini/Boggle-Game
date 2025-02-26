@@ -7,14 +7,20 @@ import Timer from "./timer";
 import useSocket from "../../lib/useSocket";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { getBoard } from "@/app/services/board.service";
+import { submitWord } from "@/app/services/game.service";
 
-export default function BoggleBoard() {
+interface BoggleBoardProps
+{
+    gameId:string,
+    board:string[][]
+}
+
+export default function BoggleBoard({ gameId,board }: BoggleBoardProps) {
     const { data: session } = useSession({ required: true });
     //board current state
     const [state, setState] = useState<BoardState>(
         {
-            board: Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => '')),
+            board: board,
             cursor: { i: -1, j: -1 },
             word: "",
             path: "",
@@ -32,16 +38,7 @@ export default function BoggleBoard() {
     });
 
     useEffect(() => {
-        join(session?.user?.email ?? "","test");
-        const fetchBoard = async ()=>{
-            const brd = await getBoard(session?.user?.accessToken);
-            setState((prev: BoardState)  => {
-                return { ...prev, board: brd ?? [] };
-            });
-        };
-
-        fetchBoard();
-        
+        join(session?.user?.email ?? "", gameId);
     }, [connected]);
 
     function onVisit(index: number) {
@@ -93,7 +90,7 @@ export default function BoggleBoard() {
         if (!state.word || state.word.length == 0 || words.has(state.path)) return;
         send({ path: state.path, word: state.word });
         setWords(prev => new Map(prev).set(state.path, { word: state.word, exist: false }));
-        isaword(state.path,state.word);
+        isaword(state.path, state.word);
         setState(s => {
             return {
                 ...s,
@@ -106,13 +103,10 @@ export default function BoggleBoard() {
         });
     }
 
-    const API_URL = process.env.DICTIONARY_APP_API_URL || "http://localhost:3003";
-
-    function isaword(path: string, word:string) {
+    function isaword(path: string, word: string) {
         const checkWord = async () => {
-            const response = await fetch(`${API_URL}/dictionary/${word}`);
-            const result = await response.json();
-            setWords(prev => new Map(prev).set(path, { word: word, exist: result }));
+            const response = await submitWord(session?.user?.accessToken, gameId, word, path);
+            setWords(prev => new Map(prev).set(path, { word: word, exist: response.valid }));
         };
 
         checkWord();
@@ -155,8 +149,8 @@ export default function BoggleBoard() {
                             {[...words.entries()].map(([path, word]) => (
                                 <li key={path} className={clsx("p-2 rounded-md shadow-sm",
                                     {
-                                        "bg-gray-50" : !word.exist,
-                                        "bg-green-500" : word.exist
+                                        "bg-gray-50": !word.exist,
+                                        "bg-green-500": word.exist
                                     }
                                 )}>
                                     {word.word}
