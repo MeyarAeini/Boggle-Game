@@ -12,7 +12,7 @@ export default function BoggleForm() {
     const [board, setBoard] = useState(Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => '')));
     const searchParam = useSearchParams();
     const pathName = usePathname();
-    const { replace } = useRouter();
+    const { replace,push } = useRouter();
     useEffect(() => {
         const fetchBoard = async () => {
             if (!gameId || gameId.length===0) {
@@ -35,22 +35,13 @@ export default function BoggleForm() {
         params.set("gameId", gameSessionId);
         replace(`${pathName}?${params.toString()}`);
     }
-    const restart = async () => {
+    const finish = async () => {
         const token = session?.user?.accessToken;
 
         //end current game session
         await endGame(token, gameId);
 
-        //start a new game session
-        const gameSession = await newGame(token);
-        if (!!gameSession.id) {
-            setGameId(gameSession.id);
-            setBoard(gameSession.board);
-            await startGame(token, gameSession.id);
-        }
-
-        //update params
-        setParams(gameSession.id);
+        push('/'); 
     }
     if (status === 'loading') {
         return <p>Loading session...</p>; // Show a loading spinner or message
@@ -62,9 +53,9 @@ export default function BoggleForm() {
         <>
             <p>Welcome, {session.user?.email}</p>
             <div className="flex flex-col items-center justify-center h-screen gap-4">
-                <button onClick={restart}
-                    className="w-16 h-16 flex items-center justify-center text-xl font-bold text-white rounded-lg shadow-md bg-green-400">
-                    reset
+                <button onClick={finish}
+                    className="w-16 h-16 flex items-center justify-center text-xl font-bold text-white rounded-lg shadow-md bg-red-400">
+                    finish
                 </button>
                 <BoggleBoard key={gameId} gameId={gameId} board={board} />
             </div>

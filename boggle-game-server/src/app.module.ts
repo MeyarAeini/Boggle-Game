@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
@@ -10,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameModule } from './game/game.module';
 import { BoardModule } from './board/board.module';
 import { WordSubmissionModule } from './word-submission/word-submission.module';
+
 
 @Module({
   imports:
@@ -23,14 +22,6 @@ import { WordSubmissionModule } from './word-submission/word-submission.module';
       BoardModule,
       WordSubmissionModule
     ],
-  controllers:
-    [
-      AppController
-    ],
-  providers:
-    [
-      AppService,
-      AppGateway
-    ],
+  providers: [AppGateway ],
 })
 export class AppModule { }

@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { DictionaryService } from './dictionary.service';
 import {BoardPath} from './definitions';
 import { Trie } from './trie';
+import { JwtGuard } from 'src/auth/guards';
 
 @Controller('dictionary')
 export class DictionaryController {
@@ -9,6 +10,7 @@ export class DictionaryController {
     constructor(private readonly service : DictionaryService){
     }
 
+    @UseGuards(JwtGuard)
     @Get(':word')
     exist(@Param('word') word:string) : boolean{
         return this.service.has(word);
@@ -19,6 +21,7 @@ export class DictionaryController {
       -H "Content-Type: application/json" \
       -d '{"board":["abcd", "efgh", "ijkl", "mnop"]}' |jq
     */
+    @UseGuards(JwtGuard)
     @Post()
     findwordsInBoard(@Body("board") board:string[]):BoardPath[]{
         console.log("request");
