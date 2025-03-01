@@ -105,7 +105,7 @@ export default function BoggleBoard({ gameId,board }: BoggleBoardProps) {
 
     function isaword(path: string, word: string) {
         const checkWord = async () => {
-            const response = await submitWord(session?.user?.accessToken, gameId, word, path);
+            const response = await submitWord(gameId, word, path);
             setWords(prev => new Map(prev).set(path, { word: word, exist: response.valid }));
         };
 

@@ -5,6 +5,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { BoardService } from 'src/board/board.service';
 import { UserService } from 'src/user/user.service';
 import { GameTeam } from './schemas/game-team.schema';
+import { UserGamesDto } from './dtos/user-games.dto';
 
 @Injectable()
 export class GameService {
@@ -19,7 +20,7 @@ export class GameService {
         const user = await this.userService.findOne(userId);
         if (!user) return null;
         const session = new this.gameSessionModel({
-            _id : new Types.ObjectId(),
+            _id: new Types.ObjectId(),
             board: await this.boardService.generateBoard(userId),
             teams: [new this.gameTeamModel({
                 members: [user],
@@ -52,6 +53,33 @@ export class GameService {
 
     async findOne(id: string): Promise<GameSession | null> {
         return this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
+    }
+
+    async getUserGames(userGamesDto: UserGamesDto): Promise<any> {
+        return this.gameSessionModel.aggregate([
+            {
+                $match: {
+                    organiser: new mongoose.Types.ObjectId(userGamesDto.userId)
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    startTime: '$startTime',
+                    endTime: '$endTime',
+                    board: '$board',
+                }
+            },
+            {
+                $sort: { startTime: -1 }
+            },
+            {
+                $skip: (userGamesDto.pageNo - 1) * userGamesDto.take
+            },
+            {
+                $limit: userGamesDto.take
+            }]).exec();
     }
 
 }

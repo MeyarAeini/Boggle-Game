@@ -4,6 +4,7 @@ import {
     Get,
     Param,
     Post,
+    Query,
     UseGuards
 } from '@nestjs/common';
 import { GameService } from './game.service';
@@ -23,9 +24,9 @@ export class GameController {
     async createGameSession(@GetUser('id') userId, @Body() dto: CreateGameSessionDto) {
         const session = await this.gameService.createSession(userId);
         return {
-                sessionId: session?._id,
-                board: session?.board?._id
-            };
+            sessionId: session?._id,
+            board: session?.board?._id
+        };
     }
 
     @UseGuards(JwtGuard)
@@ -44,5 +45,15 @@ export class GameController {
     @Get(':id')
     async getGameSession(@Param('id') id: string) {
         return this.gameService.findOne(id);
+    }
+
+    @UseGuards(JwtGuard)
+    @Get()
+    async getUserGames(@GetUser('id') userId, @Query('page') page, @Query('take') take) {
+        return this.gameService.getUserGames({
+            pageNo: Number(page),
+            take: Number(take),
+            userId: userId
+        });
     }
 }

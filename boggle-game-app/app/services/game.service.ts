@@ -1,7 +1,12 @@
+'use server';
+
+import { auth } from "@/auth";
 import axios from "axios";
 
-export async function newGame(token: string): Promise<{ id: string, board: string[][] }> {
-    const response = await post("game", {}, token);
+const BASE_URL = 'http://boggle-game-boggle-game-server-1:3003/';
+
+export async function newGame(): Promise<{ id: string, board: string[][] }> {
+    const response = await post("game", {});
     const game = response.data;
     return {
         id: game.sessionId,
@@ -11,25 +16,46 @@ export async function newGame(token: string): Promise<{ id: string, board: strin
     }
 }
 
-export async function startGame(token: string, game: string): Promise<boolean> {
-    const response = await post("game/start", { sessionId: game }, token);
+export async function startGame(game: string): Promise<boolean> {
+    const response = await post("game/start", { sessionId: game });
     return response.data;
 }
 
-export async function endGame(token: string, game: string): Promise<boolean> {
-    const response = await post("game/end", { sessionId: game }, token);
+export async function endGame(id: string) {
+    await post("game/end", { sessionId: id });
+}
+
+async function getToken(): Promise<string> {
+    const session = await auth();
+    return session?.user?.accessToken;
+
+}
+
+export async function submitWord(game: string, word: string, path: string): Promise<{ id: string, valid: boolean, }> {
+    const response = await post("word-submission", { game: game, word: word, path: path, });
     return response.data;
 }
 
-export async function submitWord(token: string, game: string, word: string, path: string): Promise<{ id: string, valid: boolean, }> {
-    const response = await post("word-submission", { game: game, word: word, path: path, }, token);
-    return response.data;
+export async function getMyGames(page: number, take: number) {
+    try {
+        const response = await axios.get(`${BASE_URL}game?page=${page}&take=${take}`, {
+            headers: {
+                'Authorization': `Bearer ${await getToken()}`
+            },
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
 }
-
-async function post(service: string, request: any, token: string) {
-    return await axios.post(`http://localhost:3003/${service}`, request, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        },
-    });
+async function post(service: string, request: any) {
+        const token = await getToken();
+        return await axios.post(`${BASE_URL}${service}`, request, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+    
 }
