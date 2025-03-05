@@ -13,10 +13,16 @@ export class GameBoard {
     creator: User;
 
     @Prop()
-    creationDate: Date;    
+    creationDate: Date;
 
     @Prop({ type: Boolean })
     generated: boolean;
+
+    @Prop({ type: [String] })
+    validWords: string[];
+
+    @Prop()
+    score: number
 }
 
 export const GameBoardSchema = SchemaFactory.createForClass(GameBoard);

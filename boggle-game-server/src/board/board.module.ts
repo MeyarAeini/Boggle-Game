@@ -4,6 +4,7 @@ import { BoardController } from './board.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameBoard, GameBoardSchema } from './schemas/board.schema';
 import { UserModule } from 'src/user/user.module';
+import { DictionaryModule } from 'src/dictionary/dictionary.module';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { UserModule } from 'src/user/user.module';
       [
         { name: GameBoard.name, schema: GameBoardSchema }
       ]),
-    UserModule,
+    UserModule,DictionaryModule
   ],
   providers: [BoardService],
   controllers: [BoardController],

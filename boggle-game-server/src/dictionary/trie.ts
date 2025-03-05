@@ -16,10 +16,11 @@ export class Trie{
 
     insert(word:string):void{
         let node = this.root;
-        for(const ch of word){            
-            if(!node.children[ch])
-                node.children[ch] = new TrieNode();
-            node = node.children[ch];
+        for(const ch of word){ 
+            const uch = ch.toUpperCase();           
+            if(!node.children[uch])
+                node.children[uch] = new TrieNode();
+            node = node.children[uch];
         }
         node.isword=true;
     }

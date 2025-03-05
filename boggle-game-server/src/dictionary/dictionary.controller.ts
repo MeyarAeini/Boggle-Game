@@ -25,7 +25,7 @@ export class DictionaryController {
     @Post()
     findwordsInBoard(@Body("board") board:string[]):BoardPath[]{
         console.log("request");
-        return this.service.findAllValidPath(board);
+        return this.service.findAllValidPath4(board);
     }
 
 }

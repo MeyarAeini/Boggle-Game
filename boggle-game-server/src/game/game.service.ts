@@ -33,7 +33,6 @@ export class GameService {
     }
 
     async startSession(sessionId: string): Promise<boolean> {
-        console.log(sessionId);
         const session = await this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(sessionId) }).exec();
         if (!session) return false;
         if (!!session.startTime) return false;
@@ -80,6 +79,6 @@ export class GameService {
             {
                 $limit: userGamesDto.take
             }]).exec();
-    }
+    }    
 
 }
