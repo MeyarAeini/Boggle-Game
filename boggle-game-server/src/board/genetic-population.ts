@@ -107,6 +107,7 @@ export class GeneticPopulation {
             firstShare = .5;
             secondShare = .3;
         }
+        secondShare+=firstShare;
 
         const result: string[][] = Array.from({ length: first.size }, () => Array.from({ length: first.size }, () => ''));
         for (let i = 0; i < first.size; i++)
