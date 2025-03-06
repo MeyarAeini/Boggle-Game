@@ -1,21 +1,25 @@
-// 'use client';
-
-// import { useSession } from "next-auth/react";
-// import { usePathname, useSearchParams } from "next/navigation";
-// import { useRouter } from "next/router";
-// import { useState } from "react";
 import GamesTable from "./components/my-games-table";
+import { Suspense } from "react";
+import Pagination from "./components/pagination";
+import { getMyGamesCount } from "../services/game.service";
 
-export default function MyGamesPage(){
-    // const {data} = useSession();
-    // const param = useSearchParams();
-    // const pathName = usePathname();
-    // const router = useRouter();
-    // const {pageNo,setPageNo} = useState(1);
+export default async function MyGamesPage(props: {
+    searchParams?: Promise<{
+        page?: string;
+    }>;
+}) {
+    const searchParams = await props.searchParams;
+    const currentPage = Number(searchParams?.page) || 1;
 
+    const totalPages = Math.ceil((await getMyGamesCount())/5);
     return (
-        <>
-        <GamesTable page={1}/>
-        </>
+        <div className="w-full">
+            <Suspense key={currentPage} >
+                <GamesTable page={currentPage} />
+            </Suspense>
+            <div className="mt-5 flex w-full justify-center">
+                <Pagination totalPages={totalPages} />
+            </div>
+        </div>
     );
 }

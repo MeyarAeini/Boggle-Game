@@ -79,6 +79,21 @@ export class GameService {
             {
                 $limit: userGamesDto.take
             }]).exec();
-    }    
+    }
+
+    async getUserGamesCount(userId: string): Promise<any> {
+        console.log(userId);
+        const result = await this.gameSessionModel.aggregate([
+            {
+                $match: {
+                    organiser: new mongoose.Types.ObjectId(userId)
+                }
+            },
+            {
+                $count: 'count'
+            }]);
+        return result.length > 0 ? result[0].count : 0;
+
+    }
 
 }

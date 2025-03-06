@@ -42,18 +42,24 @@ export class GameController {
     }
 
     @UseGuards(JwtGuard)
-    @Get(':id')
+    @Get('game/:id')
     async getGameSession(@Param('id') id: string) {
         return this.gameService.findOne(id);
     }
 
     @UseGuards(JwtGuard)
-    @Get()
+    @Get('list')
     async getUserGames(@GetUser('id') userId, @Query('page') page, @Query('take') take) {
         return this.gameService.getUserGames({
             pageNo: Number(page),
             take: Number(take),
             userId: userId
         });
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('count')
+    async getUserGamesCount(@GetUser('id') userId) {
+        return this.gameService.getUserGamesCount(userId);
     }
 }

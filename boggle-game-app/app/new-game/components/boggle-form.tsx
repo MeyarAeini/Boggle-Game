@@ -1,8 +1,3 @@
-//'use client';
-
-//import { useSession } from "next-auth/react";
-//import { usePathname, useSearchParams, useRouter } from "next/navigation";
-//import { useEffect, useState } from "react";
 import BoggleBoard from "./boggle-board";
 import { newGame, startGame } from "@/app/services/game.service";
 import { auth } from "@/auth";

@@ -38,7 +38,22 @@ export async function submitWord(game: string, word: string, path: string): Prom
 
 export async function getMyGames(page: number, take: number) {
     try {
-        const response = await axios.get(`${BASE_URL}game?page=${page}&take=${take}`, {
+        const response = await axios.get(`${BASE_URL}game/list?page=${page}&take=${take}`, {
+            headers: {
+                'Authorization': `Bearer ${await getToken()}`
+            },
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export async function getMyGamesCount() {
+    try {
+        const response = await axios.get(`${BASE_URL}game/count`, {
             headers: {
                 'Authorization': `Bearer ${await getToken()}`
             },
