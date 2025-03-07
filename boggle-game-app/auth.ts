@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { authConfig } from "./auth.config";
+import { jwtDecode } from "jwt-decode";
 export const { auth, handlers, signIn, signOut } = NextAuth(
     {
         ...authConfig,
@@ -52,6 +53,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth(
                     ...session.user,
                     accessToken: token.accessToken,
                 };
+                const decodedToken = jwtDecode(token.accessToken);
+                session.expires = new Date((decodedToken.exp??0) * 1000).toISOString();
                 return session;
             }
         },        
