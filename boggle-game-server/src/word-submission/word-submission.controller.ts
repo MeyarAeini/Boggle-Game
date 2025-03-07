@@ -23,6 +23,7 @@ export class WordSubmissionController {
         return {
             id: word._id,
             valid: word.valid,
+            score: word.score,
         };
     }
 }

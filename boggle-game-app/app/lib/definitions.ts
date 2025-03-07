@@ -13,13 +13,18 @@ export type BoardPosition = {
 };
 
 export type BoardPath = {
-    path:string,
-    word:string,
-    game?:string
+    path: string,
+    word: string,
+    game?: string
 }
 
 export type Game = {
-    id:Number,
-    name:string,
-    score?:Number
+    id: Number,
+    name: string,
+    score?: Number
+}
+
+export type WordScore = {
+    word: string,
+    score: number,
 }

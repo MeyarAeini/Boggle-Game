@@ -6,6 +6,7 @@ import { SubmitWordDto } from './dtos/submit-word.dto';
 import { UserService } from 'src/user/user.service';
 import { GameService } from 'src/game/game.service';
 import { DictionaryService } from 'src/dictionary/dictionary.service';
+import { wordScore } from 'src/board/boggle-board-util';
 
 @Injectable()
 export class WordSubmissionService {
@@ -20,6 +21,7 @@ export class WordSubmissionService {
         const user = await this.userService.findOne(dto.userId);
         const game = await this.gameService.findOne(dto.game);
         const valid = await this.dictionaryService.has(dto.word);
+        const score = valid ? wordScore(dto.word) : 0;
         const record = new this.wordSubmissionModel({
             _id: new Types.ObjectId(),
             finder: user,
@@ -29,6 +31,7 @@ export class WordSubmissionService {
             valid: valid,
             dictionary: "default",
             dateTime: new Date(),
+            score : score,
         });
         return record.save();
     }

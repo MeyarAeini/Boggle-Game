@@ -30,6 +30,9 @@ export class WordSubmission {
 
     @Prop()
     dateTime : Date;
+
+    @Prop()
+    score : number;
 }
 
 export const WordSubmissionSchema = SchemaFactory.createForClass(WordSubmission);

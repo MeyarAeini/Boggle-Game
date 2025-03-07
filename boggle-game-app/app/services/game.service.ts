@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import axios from "axios";
+import { redirect } from "next/navigation";
 
 const BASE_URL = 'http://boggle-game-boggle-game-server-1:3003/';
 
@@ -21,8 +22,9 @@ export async function startGame(game: string): Promise<boolean> {
     return response.data;
 }
 
-export async function endGame(id: string) {
-    await post("game/end", { sessionId: id });
+export async function endGame(id: string,next:any) {
+    await post("game/end", { sessionId: id }).then(()=>next);
+    redirect("/my-games");
 }
 
 async function getToken(): Promise<string> {
@@ -31,7 +33,7 @@ async function getToken(): Promise<string> {
 
 }
 
-export async function submitWord(game: string, word: string, path: string): Promise<{ id: string, valid: boolean, }> {
+export async function submitWord(game: string, word: string, path: string): Promise<{ id: string, valid: boolean, score: number, }> {
     const response = await post("word-submission", { game: game, word: word, path: path, });
     return response.data;
 }
@@ -66,11 +68,11 @@ export async function getMyGamesCount() {
     }
 }
 async function post(service: string, request: any) {
-        const token = await getToken();
-        return await axios.post(`${BASE_URL}${service}`, request, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        });
-    
+    const token = await getToken();
+    return await axios.post(`${BASE_URL}${service}`, request, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+    });
+
 }

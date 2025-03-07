@@ -55,30 +55,57 @@ export class GameService {
     }
 
     async getUserGames(userGamesDto: UserGamesDto): Promise<any> {
-        return this.gameSessionModel.aggregate([
-            {
-                $match: {
-                    organiser: new mongoose.Types.ObjectId(userGamesDto.userId)
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    id: '$_id',
-                    startTime: '$startTime',
-                    endTime: '$endTime',
-                    board: '$board',
-                }
-            },
-            {
-                $sort: { startTime: -1 }
-            },
-            {
-                $skip: (userGamesDto.pageNo - 1) * userGamesDto.take
-            },
-            {
-                $limit: userGamesDto.take
-            }]).exec();
+        return this.gameSessionModel.aggregate([{
+            $match: {
+                organiser: new mongoose.Types.ObjectId(userGamesDto.userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "wordsubmissions",
+                localField: "_id",
+                foreignField: "game",
+                as: "gamewords"
+            }
+        },
+        {
+            $unwind: "$gamewords"
+        },
+        // {
+        //     $match: {
+        //         "finder": new mongoose.Types.ObjectId(userGamesDto.userId)
+        //     }
+        // },
+        {
+            $group: {
+                _id: {
+                    id: "$_id",
+                    startTime: "$startTime",
+                    endTime: "$endTime",
+                    board: "$board"
+                },
+                score: { $sum: "$gamewords.score" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                id: "$_id.id",
+                startTime: "$_id.startTime",
+                endTime: "$_id.endTime",
+                board: "$_id.board",
+                score: 1
+            }
+        },
+        {
+            $sort: { startTime: -1 }
+        },
+        {
+            $skip: (userGamesDto.pageNo - 1) * userGamesDto.take
+        },
+        {
+            $limit: userGamesDto.take
+        }]).exec();
     }
 
     async getUserGamesCount(userId: string): Promise<any> {

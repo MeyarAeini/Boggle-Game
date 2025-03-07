@@ -83,7 +83,7 @@ export class BoardService {
         //goodGene.evaluate();
         let genetic = new GeneticPopulation(this.dictionaryService.trie, 10, [/*goodGene*/]);
         let bestScore = genetic.getElite(1)[0].score;
-        while (bestScore < 4200 && genetic.generation < 300) {
+        while (bestScore < 4200 && genetic.generation < 100) {
             genetic.evolve();
             bestScore = genetic.getElite(1)[0].score;
             if (genetic.generation % 11 == 0)

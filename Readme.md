@@ -10,7 +10,6 @@ The application provides an interactive and intuitive interface for playing the 
 - **Dynamic 4×4 Board**: Real-time generation and display of the optimized Boggle board.
 - **Word Input & Validation**: Users can enter words, and the system validates them against the dictionary.
 - **Scoring System**: Automatic score calculation based on word length and predefined point values.
-- **Leaderboard**: Tracks and displays high scores for competitive play.
 
 ## Services & Architecture
 The application is built with TypeScript and follows a modular architecture. Key services include:
@@ -32,6 +31,15 @@ The application is built with TypeScript and follows a modular architecture. Key
    - Manages user interactions, tracking submitted words and scores.
    - Supports session persistence for continuous gameplay.
    - Base component for multiplayer and multi team boggle game.
+
+## Version 1
+The current version is only for testing by single player. It has very simple functionality for starting a new game which since the board generated on run time it takes almost 20 seconds to load the page. This part will be improved in next version. User also can visit the games which has been sreated and played.
+The focus of this version was on creating the foundations and base control an services. 
+
+### Play a boggle board
+![New Game](./images/new-game-v1.png)
+### My games
+![My Games](./images/my-games-v1.png)
 
 ## Future Enhancements
 - **Multiplayer Mode**: Enable real-time competition with multiple players.
