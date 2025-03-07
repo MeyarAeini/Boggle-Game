@@ -1,6 +1,12 @@
-*.suo
-*.user
-bin
-obj
-packages
-*.exe
+# Ignore node_modules
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Ignore log files
+*.log
+
+# Ignore IDE specific files
+.vscode/
+.idea/

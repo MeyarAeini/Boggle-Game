@@ -1,0 +1,24 @@
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GameTeam, GameTeamSchema } from './schemas/game-team.schema';
+import { GameSession, GameSessionSchema } from './schemas/game-session.schema';
+import { GameService } from './game.service';
+import { GameController } from './game.controller';
+import { UserModule } from 'src/user/user.module';
+import { BoardModule } from 'src/board/board.module';
+
+@Module({
+    imports: [
+        MongooseModule.forFeature(
+            [
+                { name: GameTeam.name, schema: GameTeamSchema },
+                { name: GameSession.name, schema: GameSessionSchema }
+            ]),
+        UserModule,
+        BoardModule,
+    ],
+    providers: [GameService],
+    controllers: [GameController],
+    exports: [GameService]
+})
+export class GameModule { }
