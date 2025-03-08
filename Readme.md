@@ -41,6 +41,18 @@ The focus of this version was on creating the foundations and base control an se
 ### My games
 ![My Games](./images/my-games-v1.png)
 
+## Version 1.1
+### Features to be Implemented
+#### Multiplayer Boggle Board Game
+- This version of the multiplayer Boggle game allows players to join a game session and compete against each other. Each team consists of a single player, and all players are opponents.
+- The score for each player (single-player team) is calculated as the sum of the scores of all words they find.
+- The game panel displays the leaderboard for the current session, showing participating players and their corresponding real-time scores.
+#### Player Registration
+- To join a new game session, players must be invited by the game organizer. They can enter the session number to register and join the game.
+#### Boggle Board Generation Performance
+- The performance of Boggle board generation should be significantly improved to provide a smooth user experience without reducing board quality.
+- Compiled languages such as Rust should be used for board generation to enhance performance and take advantage of multi-threading.
+
 ## Future Enhancements
 - **Multiplayer Mode**: Enable real-time competition with multiple players.
 - **Performance Optimization**: Improve efficiency of board generation and word validation.
