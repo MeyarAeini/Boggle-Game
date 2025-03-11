@@ -18,7 +18,7 @@ export default function Timer() {
     }, []);
     return (
         <div>
-            {`${timer.hours.toString().padStart(2, '0')}:${timer.minutes.toString().padStart(2, '0')}:${timer.seconds.toString().padStart(2, '0')}`}
+            Time Elapsed : {`${timer.hours.toString().padStart(2, '0')}:${timer.minutes.toString().padStart(2, '0')}:${timer.seconds.toString().padStart(2, '0')}`}
         </div>
     )
 }

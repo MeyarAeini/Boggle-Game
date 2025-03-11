@@ -17,11 +17,12 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
     const [words, setWords] = useState<Map<string, { word: string, exist: boolean, score: number }>>(new Map());
     const [word, setWord] = useState('');
     const [validWords, setValidWords] = useState<WordScore[]>([]);
+    const [totalScore, setTotalScore] = useState(0);
 
     //connect to socket
     const { connected, send, join } = useSocket((data: BoardPath) => {
         if (!data.word || data.word.length == 0 || words.has(data.path)) return;
-        setWords(prev => new Map(prev).set(data.path, { word: data.word, exist: false,score:0 }));
+        setWords(prev => new Map(prev).set(data.path, { word: data.word, exist: false, score: 0 }));
     });
 
     useEffect(() => {
@@ -29,9 +30,10 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
     }, [connected]);
 
     useEffect(() => {
-        setValidWords((prev)=>{
-            return [...getValidWords()];
-        });
+        const validWords = [...getValidWords()];
+        setValidWords(validWords);
+        const totalScore = validWords.reduce((acc,current)=>acc+current.score,0);
+        setTotalScore(totalScore);
     }, [words]);
 
     const currentWordChanged = (word: string) => {
@@ -70,7 +72,7 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
         <div className="flex flex-col min-h-screen bg-gray-100 p-4">
             {/* Header at the top */}
             <div className="w-full">
-                <BoardHeader id={gameid} word={word} />
+                <BoardHeader id={gameid} word={word} score={totalScore}/>
             </div>
 
             {/* Middle section (left, board, right) */}
