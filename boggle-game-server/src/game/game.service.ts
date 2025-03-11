@@ -54,6 +54,19 @@ export class GameService {
         return this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
     }
 
+    async getLastSession(userId: string): Promise<GameSession | null> {
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const games = await this.gameSessionModel.find({
+            teams: {
+                $elemMatch: {
+                    members: userObjectId
+                }
+            }
+        }).sort({ startTime: -1 }).limit(1).exec();
+        if (!games || games.length == 0) return null;
+        return games[0];
+    }
+
     async getUserGames(userGamesDto: UserGamesDto): Promise<any> {
         return this.gameSessionModel.aggregate([{
             $match: {

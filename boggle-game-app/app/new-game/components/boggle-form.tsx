@@ -1,12 +1,16 @@
-import { newGame, startGame } from "@/app/services/game.service";
+import { getLastSession, newGame, startGame } from "@/app/services/game.service";
 import BoggleGamePanel from "./boggle-game-panel";
 
 export default async function BoggleForm() {
-    const gameSession = await newGame();
-    if (!!gameSession.id) {
-        await startGame(gameSession.id);
+    let gameSession = await getLastSession();
+    if(gameSession && gameSession.endTime){
+        gameSession = await newGame();
+        if (!!gameSession.sessionId) {
+            await startGame(gameSession.sessionId);
+        }
     }
+
     return (
-        <BoggleGamePanel gameid={gameSession.id} board={gameSession.board} />
+        <BoggleGamePanel gameSession={gameSession} />
     );
 }

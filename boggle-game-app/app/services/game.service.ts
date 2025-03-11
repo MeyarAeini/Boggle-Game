@@ -3,16 +3,27 @@
 import axios from "axios";
 import { redirect } from "next/navigation";
 import { BASE_URL, getToken, post } from "./base.service";
+import { GameSession } from "../lib/definitions";
 
-export async function newGame(): Promise<{ id: string, board: string[][] }> {
+export async function newGame(): Promise<GameSession> {
     const response = await post("game", {});
     const game = response.data;
+    return getGameSession(game);
+}
+
+function getGameSession(data: any): GameSession {
+    console.log(data.startTime);
+    const toDate = new Date(!!data.endTime ? data.endTime : data.now);
+    const fromDate = new Date(data.startTime ? data.startTime : data.now);
+    const elapsed = toDate.getTime() - fromDate.getTime();
     return {
-        id: game.sessionId,
+        sessionId: data.sessionId,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        timeElapsed: elapsed,
         board: Array.from({ length: 4 }, (_, i) =>
-            Array.from({ length: 4 }, (_, j) => game.board.slice(i * 4 + j, i * 4 + j + 1))
-        ),
-    }
+            Array.from({ length: 4 }, (_, j) => data.board.slice(i * 4 + j, i * 4 + j + 1))),
+    };
 }
 
 export async function startGame(game: string): Promise<boolean> {
@@ -20,8 +31,8 @@ export async function startGame(game: string): Promise<boolean> {
     return response.data;
 }
 
-export async function endGame(id: string,next:any) {
-    await post("game/end", { sessionId: id }).then(()=>next);
+export async function endGame(id: string, next: any) {
+    await post("game/end", { sessionId: id }).then(() => next);
     redirect("/my-games");
 }
 
@@ -44,6 +55,21 @@ export async function getMyGames(page: number, take: number) {
     catch (error) {
         console.log(error);
         throw error;
+    }
+}
+
+export async function getLastSession(): Promise<GameSession> {
+    try {
+        const response = await axios.get(`${BASE_URL}game/lastsession`, {
+            headers: {
+                'Authorization': `Bearer ${await getToken()}`
+            },
+        });
+        return getGameSession(response.data);
+    }
+    catch (err) {
+        console.log(err);
+        throw err;
     }
 }
 

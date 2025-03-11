@@ -1,7 +1,17 @@
 'use client';
 import { useState, useEffect } from "react"
-export default function Timer() {
+export default function Timer({ elapsedMilliSeconds }: { elapsedMilliSeconds: number }) {
     const [timer, setTimer] = useState({ seconds: 0, minutes: 0, hours: 0 });
+    useEffect(() => {
+        if (elapsedMilliSeconds > 999) {
+            const totalSeconds = Math.floor(elapsedMilliSeconds / 1000);
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor((totalSeconds / 60) % 60);
+            const hours = Math.floor(totalSeconds / 3600);
+            setTimer({ seconds: seconds, minutes: minutes, hours: hours });
+        }
+    }, [elapsedMilliSeconds]);
+
     useEffect(() => {
         setInterval(() => {
             setTimer(prev => {

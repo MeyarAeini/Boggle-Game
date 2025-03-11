@@ -6,12 +6,12 @@ import BoardHeader from "./board-header";
 import BoardLeftSide from "./board-left-side";
 import BoardRightSide from "./board-right-side";
 import BoardFooter from "./board-footer";
-import { BoardPath, WordScore } from "@/app/lib/definitions";
+import { BoardPath, GameSession, WordScore } from "@/app/lib/definitions";
 import useSocket from "@/app/lib/useSocket";
 import { submitWord } from "@/app/services/game.service";
 import { useSession } from "next-auth/react";
 
-export default function BoggleGamePanel({ gameid, board }: { gameid: string, board: string[][] }) {
+export default function BoggleGamePanel({ gameSession }: { gameSession: GameSession }) {
     const { data: session } = useSession({ required: true });
     //added words
     const [words, setWords] = useState<Map<string, { word: string, exist: boolean, score: number }>>(new Map());
@@ -26,13 +26,13 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
     });
 
     useEffect(() => {
-        join(session?.user?.email ?? "", gameid);
+        join(session?.user?.email ?? "", gameSession.sessionId);
     }, [connected]);
 
     useEffect(() => {
         const validWords = [...getValidWords()];
         setValidWords(validWords);
-        const totalScore = validWords.reduce((acc,current)=>acc+current.score,0);
+        const totalScore = validWords.reduce((acc, current) => acc + current.score, 0);
         setTotalScore(totalScore);
     }, [words]);
 
@@ -51,7 +51,7 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
 
     function isaword(path: string, word: string) {
         const checkWord = async () => {
-            const response = await submitWord(gameid, word, path);
+            const response = await submitWord(gameSession.sessionId, word, path);
             console.log(`submission response : ${response.score}`);
             setWords(prev => new Map(prev).set(path, { word: word, exist: response.valid, score: response.score }));
         };
@@ -72,33 +72,37 @@ export default function BoggleGamePanel({ gameid, board }: { gameid: string, boa
         <div className="flex flex-col min-h-screen bg-gray-100 p-4">
             {/* Header at the top */}
             <div className="w-full">
-                <BoardHeader id={gameid} word={word} score={totalScore}/>
+                <BoardHeader gameSession={gameSession} word={word} score={totalScore} />
             </div>
 
             {/* Middle section (left, board, right) */}
             <div className="flex flex-1 gap-2 mt-4">
                 {/* Left side in the middle left */}
                 <div className="w-1/5 bg-white p-6 rounded-lg shadow-md">
-                    <BoardLeftSide id={gameid} words={[...words.values()]} />
+                    <BoardLeftSide id={gameSession.sessionId} words={[...words.values()]} />
                 </div>
 
                 {/* Board in the middle */}
                 <div className="flex-1 bg-white p-6 rounded-lg shadow-md flex items-center justify-center">
                     <div className="flex flex-col items-center justify-center gap-2">
-                        <BoggleBoard key={gameid} gameId={gameid} board={board} onWordSubmited={wordSubmitted} onCurrentWordChanged={currentWordChanged} />
+                        <BoggleBoard key={gameSession.sessionId}
+                            gameId={gameSession.sessionId}
+                            board={gameSession.board}
+                            onWordSubmited={wordSubmitted}
+                            onCurrentWordChanged={currentWordChanged} />
                     </div>
                 </div>
 
                 {/* Right side in the middle right */}
                 <div className="w-1/5 bg-white p-6 rounded-lg shadow-md">
-                    <BoardRightSide id={gameid} words={validWords} />
+                    <BoardRightSide id={gameSession.sessionId} words={validWords} />
                 </div>
             </div>
 
             {/* Footer at the bottom */}
             <div className="w-full mt-4">
                 <Suspense>
-                    <BoardFooter id={gameid} />
+                    <BoardFooter gameSession={gameSession} />
                 </Suspense>
             </div>
         </div>

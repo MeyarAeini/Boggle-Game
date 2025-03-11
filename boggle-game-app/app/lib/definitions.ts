@@ -28,3 +28,11 @@ export type WordScore = {
     word: string,
     score: number,
 }
+
+export type GameSession = {
+    sessionId: string,
+    board: string[][],
+    startTime: Date,
+    endTime: Date,
+    timeElapsed: number,
+}

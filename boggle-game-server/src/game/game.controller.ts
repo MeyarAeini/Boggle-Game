@@ -25,7 +25,10 @@ export class GameController {
         const session = await this.gameService.createSession(userId);
         return {
             sessionId: session?._id,
-            board: session?.board?._id
+            board: session?.board?._id,
+            startTime: session?.startTime,
+            endTime: session?.endTime,
+            now: new Date(),
         };
     }
 
@@ -61,5 +64,19 @@ export class GameController {
     @Get('count')
     async getUserGamesCount(@GetUser('id') userId) {
         return this.gameService.getUserGamesCount(userId);
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('lastsession')
+    async getLastSession(@GetUser('id') userId) {
+        const session = await this.gameService.getLastSession(userId);
+        if (session == null) return null;
+        return {
+            sessionId: session._id,
+            board: session.board,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            now: new Date(),
+        };
     }
 }
