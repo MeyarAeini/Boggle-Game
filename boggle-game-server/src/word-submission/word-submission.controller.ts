@@ -1,7 +1,9 @@
 import {
     Body,
     Controller,
+    Get,
     Post,
+    Query,
     UseGuards
 } from '@nestjs/common';
 import { WordSubmissionService } from './word-submission.service';
@@ -25,5 +27,17 @@ export class WordSubmissionController {
             valid: word.valid,
             score: word.score,
         };
+    }
+
+    @UseGuards(JwtGuard)
+    @Get()
+    async getUserTeamWordSubmissions(@GetUser('id') userId, @Query('gameId') gameId) {
+        return (await this.service.getUserTeamWordSubmissions(userId, gameId)).map((it) => ({
+            path: it.path,
+            word: it.word,
+            valid: it.valid,
+            score: it.score
+        }));
+
     }
 }

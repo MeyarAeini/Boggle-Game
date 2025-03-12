@@ -136,4 +136,29 @@ export class GameService {
 
     }
 
+    async findTeammateUserIds(gameId: Types.ObjectId, userId: Types.ObjectId): Promise<Types.ObjectId[]> {
+
+        const gameSession = await this.gameSessionModel.findOne({
+            '_id': gameId,
+        });
+
+        if (!gameSession) {
+            return [];
+        }
+
+        const teamWithUser = gameSession.teams.find((team) =>
+            team.members.some((member) => {
+                const memberId = member instanceof Types.ObjectId ? member : member._id;
+                return memberId.equals(userId)
+            }),
+        );
+
+        if (!teamWithUser) {
+            return [];
+        }
+
+        return teamWithUser.members
+            .map((member) => (member instanceof Types.ObjectId ? member : member._id));
+    }
+
 }

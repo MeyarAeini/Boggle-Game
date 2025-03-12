@@ -8,7 +8,7 @@ import BoardRightSide from "./board-right-side";
 import BoardFooter from "./board-footer";
 import { BoardPath, GameSession, WordScore } from "@/app/lib/definitions";
 import useSocket from "@/app/lib/useSocket";
-import { submitWord } from "@/app/services/game.service";
+import { getSubmittedWords, submitWord } from "@/app/services/game.service";
 import { useSession } from "next-auth/react";
 
 export default function BoggleGamePanel({ gameSession }: { gameSession: GameSession }) {
@@ -24,6 +24,23 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
         if (!data.word || data.word.length == 0 || words.has(data.path)) return;
         setWords(prev => new Map(prev).set(data.path, { word: data.word, exist: false, score: 0 }));
     });
+
+    useEffect(() => {
+        const loadWords = async () => {
+            const wrds = await getSubmittedWords(gameSession.sessionId);
+            setWords((prev) => {
+                const newVersion = new Map(prev);
+                wrds.forEach((v) => {
+                    if (!newVersion.has(v.path))
+                        newVersion.set(v.path, { word: v.word, exist: v.valid, score: v.score });
+                });
+                return newVersion;
+            })
+
+        };
+
+        loadWords();
+    }, [gameSession]);
 
     useEffect(() => {
         join(session?.user?.email ?? "", gameSession.sessionId);
@@ -52,7 +69,6 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
     function isaword(path: string, word: string) {
         const checkWord = async () => {
             const response = await submitWord(gameSession.sessionId, word, path);
-            console.log(`submission response : ${response.score}`);
             setWords(prev => new Map(prev).set(path, { word: word, exist: response.valid, score: response.score }));
         };
 

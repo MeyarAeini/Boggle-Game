@@ -36,3 +36,10 @@ export type GameSession = {
     endTime: Date,
     timeElapsed: number,
 }
+
+export type SubmittedWord = {
+    path: string,
+    word: string,
+    valid:boolean,
+    score: number,
+}

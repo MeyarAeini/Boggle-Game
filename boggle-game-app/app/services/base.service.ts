@@ -12,6 +12,15 @@ export async function post(service: string, request: any) {
     });
 }
 
+export async function query(query:string){
+    const token = await getToken();
+    return await axios.get(`${BASE_URL}${query}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+    });
+}
+
 export async function getToken(): Promise<string> {
     const session = await auth();
     return session?.user?.accessToken;

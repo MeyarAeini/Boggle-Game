@@ -1,9 +1,8 @@
 'use server';
 
-import axios from "axios";
 import { redirect } from "next/navigation";
-import { BASE_URL, getToken, post } from "./base.service";
-import { GameSession } from "../lib/definitions";
+import { post, query } from "./base.service";
+import { GameSession, SubmittedWord } from "../lib/definitions";
 
 export async function newGame(): Promise<GameSession> {
     const response = await post("game", {});
@@ -43,13 +42,25 @@ export async function submitWord(game: string, word: string, path: string): Prom
     return response.data;
 }
 
+export async function getSubmittedWords(gameId: string): Promise<SubmittedWord[]> {
+    try {
+        const response = await query(`word-submission?gameId=${gameId}`);
+        return response.data.map((it: any) => ({
+            path: it.path,
+            word: it.word,
+            valid: it.valid,
+            score: it.score ? it.score : 0,
+        }));
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 export async function getMyGames(page: number, take: number) {
     try {
-        const response = await axios.get(`${BASE_URL}game/list?page=${page}&take=${take}`, {
-            headers: {
-                'Authorization': `Bearer ${await getToken()}`
-            },
-        });
+        const response = await query(`game/list?page=${page}&take=${take}`);
         return response.data;
     }
     catch (error) {
@@ -60,11 +71,7 @@ export async function getMyGames(page: number, take: number) {
 
 export async function getLastSession(): Promise<GameSession> {
     try {
-        const response = await axios.get(`${BASE_URL}game/lastsession`, {
-            headers: {
-                'Authorization': `Bearer ${await getToken()}`
-            },
-        });
+        const response = await query(`game/lastsession`);
         return getGameSession(response.data);
     }
     catch (err) {
@@ -75,11 +82,7 @@ export async function getLastSession(): Promise<GameSession> {
 
 export async function getMyGamesCount() {
     try {
-        const response = await axios.get(`${BASE_URL}game/count`, {
-            headers: {
-                'Authorization': `Bearer ${await getToken()}`
-            },
-        });
+        const response = await query('game/count');
         return response.data;
     }
     catch (error) {
