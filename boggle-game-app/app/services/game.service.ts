@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { post, query } from "./base.service";
-import { GameSession, SubmittedWord } from "../lib/definitions";
+import { GameSession, Player, SubmittedWord } from "../lib/definitions";
 
 export async function newGame(): Promise<GameSession> {
     const response = await post("game", {});
@@ -15,24 +15,25 @@ function getGameSession(data: any): GameSession {
     const toDate = new Date(!!data.endTime ? data.endTime : data.now);
     const fromDate = new Date(data.startTime ? data.startTime : data.now);
     const elapsed = toDate.getTime() - fromDate.getTime();
+    
     return {
         sessionId: data.sessionId,
         startTime: data.startTime,
         endTime: data.endTime,
         timeElapsed: elapsed,
-        board: Array.from({ length: 4 }, (_, i) =>
-            Array.from({ length: 4 }, (_, j) => data.board.slice(i * 4 + j, i * 4 + j + 1))),
+        board: data.board ? Array.from({ length: 4 }, (_, i) =>
+            Array.from({ length: 4 }, (_, j) => data.board.slice(i * 4 + j, i * 4 + j + 1))) : [[]],
     };
 }
 
-export async function startGame(game: string): Promise<boolean> {
-    const response = await post("game/start", { sessionId: game });
-    return response.data;
+export async function startGame(game: string) {
+    await post("game/start", { sessionId: game });
+    redirect("/game");
 }
 
 export async function endGame(id: string, next: any) {
     await post("game/end", { sessionId: id }).then(() => next);
-    redirect("/my-games");
+    redirect("/history");
 }
 
 
@@ -73,6 +74,17 @@ export async function getLastSession(): Promise<GameSession> {
     try {
         const response = await query(`game/lastsession`);
         return getGameSession(response.data);
+    }
+    catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export async function getGamePlayers(gameId: string): Promise<Player[]> {
+    try {
+        const response = await query(`game/players?gameId=${gameId}`);
+        return response.data;
     }
     catch (err) {
         console.log(err);

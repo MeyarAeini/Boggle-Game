@@ -40,6 +40,12 @@ export type GameSession = {
 export type SubmittedWord = {
     path: string,
     word: string,
-    valid:boolean,
+    valid: boolean,
     score: number,
+}
+
+export type Player = {
+    id: string,
+    email: string,
+    name: string,
 }

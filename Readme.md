@@ -48,7 +48,7 @@ The focus of this version was on creating the foundations and base control an se
 - The score for each player (single-player team) is calculated as the sum of the scores of all words they find.
 - The game panel displays the leaderboard for the current session, showing participating players and their corresponding real-time scores.
 ##### Enhancement
-- When user click on the new-game menu ( the name might be changed) , if the last game session is not still ended, the game will be populated in the UI until user manually clicks on the End Game button.
+- When user click on the Game menu ( the name might be changed) , if the last game session is not still ended, the game will be populated in the UI until user manually clicks on the End Game button.
 #### Player Registration
 - To join a new game session, players must be invited by the game organizer. They can enter the session number to register and join the game.
 - A simple registration process in the login page is available now, user simply enter email, name and passsword and click register. The user registration does not have any user activation or verification process now. This is not secure, however the goal of this project is to focuse more on the other challenges such as multi-threading and multi-palyer game. So this registration will cover the minimum requirement to have multiple player available. In future this process can be enhanced and revised.

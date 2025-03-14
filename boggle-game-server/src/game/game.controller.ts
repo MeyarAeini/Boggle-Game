@@ -79,4 +79,15 @@ export class GameController {
             now: new Date(),
         };
     }
+
+    @UseGuards(JwtGuard)
+    @Get("players")
+    async getGamePlayers(@Query('gameId') gameId) {
+        const players = await this.gameService.getGamePlayers(gameId);
+        return players?.map((p) => ({
+            email: p.email,
+            id: p.id,
+            name: p.name,
+        }));
+    }
 }

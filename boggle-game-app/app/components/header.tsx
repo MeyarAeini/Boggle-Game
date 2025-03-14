@@ -10,13 +10,13 @@ export default function Header() {
                 <nav>
                     <ul className="flex space-x-4">
                         <li>
-                            <Link href="/new-game" className="hover:text-gray-400">
-                                New Game
+                            <Link href="/game" className="hover:text-gray-400">
+                                Game
                             </Link>
                         </li>
                         <li>
-                            <Link href="/my-games" className="hover:text-gray-400">
-                                My Games
+                            <Link href="/history" className="hover:text-gray-400">
+                                History
                             </Link>
                         </li>
                         <li>

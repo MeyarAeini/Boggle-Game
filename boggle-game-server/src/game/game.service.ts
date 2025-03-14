@@ -6,6 +6,7 @@ import { BoardService } from 'src/board/board.service';
 import { UserService } from 'src/user/user.service';
 import { GameTeam } from './schemas/game-team.schema';
 import { UserGamesDto } from './dtos/user-games.dto';
+import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class GameService {
@@ -20,8 +21,7 @@ export class GameService {
         const user = await this.userService.findOne(userId);
         if (!user) return null;
         const session = new this.gameSessionModel({
-            _id: new Types.ObjectId(),
-            board: await this.boardService.generateBoard(userId),
+            _id: new Types.ObjectId(),            
             teams: [new this.gameTeamModel({
                 members: [user],
                 winner: false
@@ -37,6 +37,7 @@ export class GameService {
         if (!session) return false;
         if (!!session.startTime) return false;
         session.startTime = new Date();
+        session.board = await this.boardService.generateBoard(session.organiser._id.toHexString()),
         await session.save();
         return true;
     }
@@ -159,6 +160,16 @@ export class GameService {
 
         return teamWithUser.members
             .map((member) => (member instanceof Types.ObjectId ? member : member._id));
+    }
+
+    async getGamePlayers(sessionId: string): Promise<User[] | null> {
+        const result = await this.gameSessionModel.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(sessionId) } },
+            { $unwind: "$teams" },
+            { $unwind: "$teams.members" },
+            { $group: { _id: null, userIds: { $push: "$teams.members" } } },
+            { $project: { _id: 0, userIds: 1 } }]).exec();
+        return this.userService.findAll(result[0].userIds);
     }
 
 }
