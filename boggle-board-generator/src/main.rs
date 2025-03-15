@@ -39,8 +39,11 @@ fn main() {
             vec!['S','T','T','L']]
         ,4,4);
     //dict.get_board_score(&sample);
-    let score = dict.get_board_score(&sample2);
-    println!("score for SOTGPRNSEAIESTTL : {score}");
+    let score = dict.get_board_score(&sample);
+    println!("score for SERSPATGLINESERS : {score}");
+    let score2 = dict.get_board_score(&sample2);
+    println!("score for SOTGPRNSEAIESTTL : {score2}");
+
     println!("test is a word {}",dict.is_word("test"));
     println!("read is a word {}",dict.is_word("read"));
     println!("a random boggle board: {} with hash : {}",brd.to_string(),brd.hash());

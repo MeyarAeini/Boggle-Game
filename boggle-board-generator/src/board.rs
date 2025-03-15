@@ -15,7 +15,7 @@ impl Board{
             grid:grid,
         }
     }
-    
+
     pub fn get_x(&self) -> usize{
         self.x
     }
@@ -31,11 +31,11 @@ impl Board{
             grid:vec![vec![' ';y];x]
         };
 
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for i in 0..x {
             for j in 0..y {
-                let rnd = rng.gen_range(0..26);
+                let rnd = rng.random_range(0..26);
                 let random_char = (b'A' + rnd) as char;
                 brd.set(i,j,random_char);
             }
