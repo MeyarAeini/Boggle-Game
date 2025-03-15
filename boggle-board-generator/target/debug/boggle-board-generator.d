@@ -1,0 +1,1 @@
+/home/meyar/source/Boggle-Game/boggle-board-generator/target/debug/boggle-board-generator: /home/meyar/source/Boggle-Game/boggle-board-generator/src/board.rs /home/meyar/source/Boggle-Game/boggle-board-generator/src/dictionary/trie.rs /home/meyar/source/Boggle-Game/boggle-board-generator/src/dictionary.rs /home/meyar/source/Boggle-Game/boggle-board-generator/src/main.rs
