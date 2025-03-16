@@ -1,4 +1,5 @@
 use rand::Rng;
+use rand::distr::{Distribution, Uniform};
 
 pub struct Board{
     x:usize,
@@ -8,6 +9,7 @@ pub struct Board{
 
 impl Board{
 
+    
     pub fn new(grid:Vec<Vec<char>>,x:usize,y:usize)->Self{
         Self{
             x:x,
@@ -31,11 +33,12 @@ impl Board{
             grid:vec![vec![' ';y];x]
         };
 
+        let uniform = Uniform::try_from(0..26).unwrap();
         let mut rng = rand::rng();
 
         for i in 0..x {
             for j in 0..y {
-                let rnd = rng.random_range(0..26);
+                let rnd = uniform.sample(&mut rng);;
                 let random_char = (b'A' + rnd) as char;
                 brd.set(i,j,random_char);
             }
@@ -43,6 +46,14 @@ impl Board{
         
         
         brd
+    }
+
+    pub fn copy(&self) -> Self{
+        Self{
+            x:self.x,
+            y:self.y,
+            grid:self.grid.to_vec(),
+        }
     }
 
     pub fn to_string(&self)->String{
@@ -88,7 +99,7 @@ impl Board{
         // }
     }  
     
-    fn set(&mut self, i:usize,j:usize,ch:char){
+    pub fn set(&mut self, i:usize,j:usize,ch:char){
         if !(i>=self.x || j>=self.y)
         {
             self.grid[i][j] = ch;

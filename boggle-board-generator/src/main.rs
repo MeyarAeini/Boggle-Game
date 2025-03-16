@@ -1,12 +1,15 @@
 
 use crate::dictionary::Dictionary;
 use crate::board::Board;
+use crate::genetic_board::GeneticBoard;
 
 use std::fs::File;
 use std::io::{self,BufRead};
+use std::time::Instant;
 
 pub mod dictionary;
 pub mod board;
+pub mod genetic_board;
 
 fn main() {
     let mut dict = Dictionary::new();
@@ -49,6 +52,10 @@ fn main() {
     println!("a random boggle board: {} with hash : {}",brd.to_string(),brd.hash());
     println!("Hello, world!");
     //SERSPATGLINESERS
+    let start = Instant::now();
+    let hello_board = GeneticBoard::get_board(&mut dict, 3000, 4,4);
+    let duration = start.elapsed();
+    println!("hello board, genetic generated : {}, {:?}", hello_board.hash(),duration);
 }
 
 fn read_words() -> io::Result<Vec<String>> {
