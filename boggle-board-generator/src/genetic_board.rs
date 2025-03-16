@@ -131,8 +131,8 @@ impl GeneticBoard{
 
         let similarity = Self::similarity(&boards.0.board,&boards.1.board);
 
-        let first_share = if similarity < 0.70 { 70 } else { 60 };
-        let second_share = if similarity < 0.70 { 95 } else { 85 };
+        let first_share = if similarity < 0.80 { 70 } else { 70 };
+        let second_share = if similarity < 0.80 { 99 } else { 80 };
 
         let uniform = Uniform::try_from(0..101).unwrap();
         let uniform2 = Uniform::try_from(0..26).unwrap();
