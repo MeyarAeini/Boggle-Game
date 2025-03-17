@@ -39,6 +39,12 @@ export class GameController {
     }
 
     @UseGuards(JwtGuard)
+    @Post('join')
+    async joinGameSession(@GetUser('id') userId, @Body() dto: GameSessionDto) {
+        return this.gameService.joinSession(userId, dto.sessionId);
+    }
+
+    @UseGuards(JwtGuard)
     @Post('end')
     async endGameSession(@Body() dto: GameSessionDto) {
         return this.gameService.endSession(dto.sessionId);

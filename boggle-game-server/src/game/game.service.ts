@@ -21,7 +21,8 @@ export class GameService {
         const user = await this.userService.findOne(userId);
         if (!user) return null;
         const session = new this.gameSessionModel({
-            _id: new Types.ObjectId(),            
+            _id: new Types.ObjectId(),
+            creationTime : new Date(),
             teams: [new this.gameTeamModel({
                 members: [user],
                 winner: false
@@ -38,8 +39,32 @@ export class GameService {
         if (!!session.startTime) return false;
         session.startTime = new Date();
         session.board = await this.boardService.generateBoard(session.organiser._id.toHexString()),
-        await session.save();
+            await session.save();
         return true;
+    }
+
+    async joinSession(userId: string, sessionId: string) {
+        const session = await this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(sessionId) }).exec();
+        if (!session) return;
+        if (!!session.startTime) return;
+        const userIdObject = new mongoose.Types.ObjectId(userId);
+        const teamWithUser = session.teams.find((team) =>
+            team.members.some((member) => {
+                const memberId = member instanceof Types.ObjectId ? member : member._id;
+                return memberId.equals(userIdObject)
+            }),
+        );
+
+        if (teamWithUser) {
+            return;
+        }
+
+        session.teams.push(new this.gameTeamModel({
+            members: [userIdObject],
+            winner: false
+        }));
+
+        await session.save();
     }
 
     async endSession(sessionId: string): Promise<boolean> {
@@ -57,13 +82,14 @@ export class GameService {
 
     async getLastSession(userId: string): Promise<GameSession | null> {
         const userObjectId = new mongoose.Types.ObjectId(userId);
+
         const games = await this.gameSessionModel.find({
             teams: {
                 $elemMatch: {
                     members: userObjectId
                 }
             }
-        }).sort({ startTime: -1 }).limit(1).exec();
+        }).sort({ creationTime: -1 }).limit(1).exec();
         if (!games || games.length == 0) return null;
         return games[0];
     }

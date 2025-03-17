@@ -31,6 +31,11 @@ export async function startGame(game: string) {
     redirect("/game");
 }
 
+export async function joinGame(game: string) {
+    await post("game/join", { sessionId: game });
+    redirect("/game");
+}
+
 export async function endGame(id: string, next: any) {
     await post("game/end", { sessionId: id }).then(() => next);
     redirect("/history");

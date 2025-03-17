@@ -1,5 +1,6 @@
 import GameList from "./components/game-list";
 import TopScoredGames from "./components/top-scored-games";
+import JoinBoggleGame from "./game/components/join-boggle-game";
 
 export default function Page() {
 
@@ -15,6 +16,7 @@ export default function Page() {
             { id: 2, name: 'Game B', score: 4.7 },
           ]}
         />
+        <JoinBoggleGame/>
       </div>
     </div>
   );
