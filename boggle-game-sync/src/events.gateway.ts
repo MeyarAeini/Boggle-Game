@@ -16,7 +16,14 @@ import { Server, Socket } from 'socket.io';
     },
 })
 export class AppGateway {
-    constructor(private jwtService: JwtService, private readonly configService: ConfigService) { }
+
+    constructor(private jwtService: JwtService, private readonly configService: ConfigService) {
+    }
+
+    sendNotificationToClients(data: any) {
+        //this.server.to(data.gameId).emit('game-state-update', data); // Broadcast to WebSocket clients
+    }
+
     @WebSocketServer() server: Server;
 
     // Handle connection event

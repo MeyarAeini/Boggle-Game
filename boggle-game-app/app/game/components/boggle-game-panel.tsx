@@ -7,12 +7,12 @@ import BoardLeftSide from "./board-left-side";
 import BoardRightSide from "./board-right-side";
 import BoardFooter from "./board-footer";
 import { BoardPath, GameSession, WordScore } from "@/app/lib/definitions";
-import useSocket from "@/app/lib/useSocket";
 import { getSubmittedWords, submitWord } from "@/app/services/game.service";
-import { useSession } from "next-auth/react";
+//import { useSession } from "next-auth/react";
+import { useGameState } from "@/app/lib/useGameState";
 
 export default function BoggleGamePanel({ gameSession }: { gameSession: GameSession }) {
-    const { data: session } = useSession({ required: true });
+    //const { data: session } = useSession({ required: true });
     //added words
     const [words, setWords] = useState<Map<string, { word: string, exist: boolean, score: number }>>(new Map());
     const [word, setWord] = useState('');
@@ -20,10 +20,7 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
     const [totalScore, setTotalScore] = useState(0);
 
     //connect to socket
-    const { connected, send, join } = useSocket((data: BoardPath) => {
-        if (!data.word || data.word.length == 0 || words.has(data.path)) return;
-        setWords(prev => new Map(prev).set(data.path, { word: data.word, exist: false, score: 0 }));
-    });
+    const { gameState } = useGameState();
 
     useEffect(() => {
         const loadWords = async () => {
@@ -42,9 +39,9 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
         loadWords();
     }, [gameSession]);
 
-    useEffect(() => {
-        join(session?.user?.email ?? "", gameSession.sessionId);
-    }, [connected]);
+    // useEffect(() => {
+    //     join(session?.user?.email ?? "", gameSession.sessionId);
+    // }, [connected]);
 
     useEffect(() => {
         const validWords = [...getValidWords()];
@@ -60,7 +57,7 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
     const wordSubmitted = (path: string, word: string): boolean => {
         if (!word || word.length == 0 || words.has(path)) return false;
 
-        send({ path: path, word: word });
+        //send({ path: path, word: word });
         setWords(prev => new Map(prev).set(path, { word: word, exist: false, score: 0 }));
         isaword(path, word);
         return true;

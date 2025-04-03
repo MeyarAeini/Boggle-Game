@@ -6,6 +6,7 @@ import { GameService } from './game.service';
 import { GameController } from './game.controller';
 import { UserModule } from 'src/user/user.module';
 import { BoardModule } from 'src/board/board.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
     imports: [
@@ -16,6 +17,16 @@ import { BoardModule } from 'src/board/board.module';
             ]),
         UserModule,
         BoardModule,
+        ClientsModule.register([
+            {
+              name: 'NOTIF_SERVICE',
+              transport: Transport.REDIS,
+              options: {
+                host: 'redis',
+                port: 6379,
+              }
+            },
+          ]),
     ],
     providers: [GameService],
     controllers: [GameController],

@@ -12,6 +12,23 @@ services:
     networks:
       - boggle-network
 
+  redis: 
+    image: redis
+    restart: always
+    networks:
+      - boggle-network
+    ports: 
+      - "6379:6379"
+
+  boggle-game-sync:
+    build: ./boggle-game-sync
+    ports:
+      - "4000:4000"
+    networks:
+      - boggle-network
+    depends_on:
+      - redis
+  
   boggle-game-server:
     build: ./boggle-game-server
     ports: 
@@ -21,6 +38,7 @@ services:
       - DICTIONARY_APP_API_URL=http://boggle-game-server:3003  # Internal service communication
     depends_on:
       - mongodb
+      - boggle-game-sync
     networks:
       - boggle-network
   

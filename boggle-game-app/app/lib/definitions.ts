@@ -49,3 +49,13 @@ export type Player = {
     email: string,
     name: string,
 }
+
+export type GamePlayerState = {
+    player : string,
+    score : string,
+}
+
+export type GameState = {
+    gameId : string,
+    players : GamePlayerState[],
+}

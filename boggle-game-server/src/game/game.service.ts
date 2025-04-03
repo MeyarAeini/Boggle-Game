@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GameSession } from './schemas/game-session.schema';
 import mongoose, { Model, Types } from 'mongoose';
@@ -7,6 +7,7 @@ import { UserService } from 'src/user/user.service';
 import { GameTeam } from './schemas/game-team.schema';
 import { UserGamesDto } from './dtos/user-games.dto';
 import { User } from 'src/user/schemas/user.schema';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class GameService {
@@ -14,7 +15,8 @@ export class GameService {
         @InjectModel(GameSession.name) private gameSessionModel: Model<GameSession>,
         @InjectModel(GameTeam.name) private gameTeamModel: Model<GameTeam>,
         private boardService: BoardService,
-        private userService: UserService
+        private userService: UserService,
+        @Inject('NOTIF_SERVICE') private notif_client: ClientProxy,
     ) { }
 
     async createSession(userId: string): Promise<GameSession | null> {
@@ -34,6 +36,7 @@ export class GameService {
     }
 
     async startSession(sessionId: string): Promise<boolean> {
+        await this.publish_game_state_update(sessionId);
         const session = await this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(sessionId) }).exec();
         if (!session) return false;
         if (!!session.startTime) return false;
@@ -65,6 +68,7 @@ export class GameService {
         }));
 
         await session.save();
+        await this.publish_game_state_update(sessionId);
     }
 
     async endSession(sessionId: string): Promise<boolean> {
@@ -196,6 +200,10 @@ export class GameService {
             { $group: { _id: null, userIds: { $push: "$teams.members" } } },
             { $project: { _id: 0, userIds: 1 } }]).exec();
         return this.userService.findAll(result[0].userIds);
+    }
+
+    async publish_game_state_update(sesstionId:string){
+        this.notif_client.emit<string>('game-state-update', `hi from server, ${sesstionId}`);
     }
 
 }
