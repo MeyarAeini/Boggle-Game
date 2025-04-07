@@ -4,8 +4,9 @@ use std::collections::HashMap;
 
 pub mod trie;
 
+#[derive(Debug)]
 pub struct Dictionary{
-    root:TrieNode,
+    pub root:TrieNode,
 }
 
 impl Dictionary{

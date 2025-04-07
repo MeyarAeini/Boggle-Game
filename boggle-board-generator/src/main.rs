@@ -10,8 +10,10 @@ use std::time::Instant;
 pub mod dictionary;
 pub mod board;
 pub mod genetic_board;
+pub mod genetic_algo_board;
 
 fn main() {
+    
     let mut dict = Dictionary::new();
 
     match read_words(){
@@ -22,6 +24,8 @@ fn main() {
         },
         Err(err)=> eprintln!("error reading file : {}",err),
     }
+
+    crate::genetic_algo_board::run(4,4,&dict);
 
     let brd = Board::new_random(4,4);
     //dict.get_board_score(&brd);
