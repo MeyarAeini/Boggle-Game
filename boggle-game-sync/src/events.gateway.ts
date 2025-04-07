@@ -1,3 +1,4 @@
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -6,41 +7,55 @@ import {
     SubscribeMessage,
     MessageBody,
     ConnectedSocket,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+@Injectable()
 @WebSocketGateway({
     cors: {
         origin: 'http://localhost:3717',
         methods: ['GET', 'POST'],
     },
+    pingTimeout: 60000, // Prevents idle disconnect
+    pingInterval: 25000, // Keeps connection alive
 })
-export class AppGateway {
+export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-    constructor(private jwtService: JwtService, private readonly configService: ConfigService) {
-    }
+    constructor(
+        private jwtService: JwtService,
+        private readonly configService: ConfigService
+    ) { }
+
+    private logger = new Logger('MessageGateway');
+    private clients:Set<string> = new Set<string>();
 
     sendNotificationToClients(data: any) {
-        //this.server.to(data.gameId).emit('game-state-update', data); // Broadcast to WebSocket clients
+        console.log(this.clients);
+        try {
+            this.server.emit('game-state-update', data);
+            this.logger.log('Message emitted successfully');
+        } catch (error) {
+            this.logger.error('Error emitting message:', error);
+        }
     }
 
-    @WebSocketServer() server: Server;
+    @WebSocketServer()
+    private server: Server;
 
     // Handle connection event
     handleConnection(@ConnectedSocket() socket: Socket) {
-        console.log(`a client connected ${socket.id}`);
+        this.logger.log(`Client connected: ${socket.id}`);
+        this.logger.log(`Total clients: ${this.server.sockets.sockets.size}`);
+        socket.emit("message", { text: "Hello from server!" });
+        this.clients.add(socket.id);
     }
 
     // Handle disconnect event
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         console.log(`client disconnected ${socket.id}`);
-    }
-
-    // Handle "apply-word" event
-    @SubscribeMessage('apply-word')
-    handleApplyWord(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
-        console.log(data);
-        this.server.emit('word-found', data); // Broadcast to all clients
+        this.clients.delete(socket.id);
     }
 
     // Handle "join-game" event

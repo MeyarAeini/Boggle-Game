@@ -7,8 +7,7 @@ export class NotificationService {
     constructor(private readonly gateway: AppGateway) { }
 
     @EventPattern('game-state-update')
-    handleNotification(@Payload() data: any) {
-        console.log('Received Redis event:', data);
+    handleNotification(@Payload() data: any) {        
         this.gateway.sendNotificationToClients(data); // Send to WebSocket clients
     }
 }

@@ -33,6 +33,7 @@ export class WordSubmissionService {
             dateTime: new Date(),
             score: score,
         });
+        await this.gameService.publish_game_state_update(dto.game);
         return record.save();
     }
 

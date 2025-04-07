@@ -77,6 +77,7 @@ export class GameService {
         if (!!session.endTime) return false;
         session.endTime = new Date();
         session.save();
+        await this.publish_game_state_update(sessionId);
         return true;
     }
 
@@ -153,7 +154,6 @@ export class GameService {
     }
 
     async getUserGamesCount(userId: string): Promise<any> {
-        console.log(userId);
         const result = await this.gameSessionModel.aggregate([
             {
                 $match: {
@@ -203,7 +203,22 @@ export class GameService {
     }
 
     async publish_game_state_update(sesstionId:string){
-        this.notif_client.emit<string>('game-state-update', `hi from server, ${sesstionId}`);
+        const session = await this.findOne(sesstionId);
+        if(!session){
+            return;
+        }
+
+        const players = await this.getGamePlayers(sesstionId);
+
+        const dto = {
+            gameId: session._id,
+            players:players?.map((p) => ({
+                email: p.email,
+                id: p.id,
+                name: p.name,
+            }))
+        };
+        this.notif_client.emit<any>('game-state-update', dto);
     }
 
 }
