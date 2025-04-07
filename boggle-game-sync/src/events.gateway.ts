@@ -29,13 +29,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) { }
 
     private logger = new Logger('MessageGateway');
-    private clients:Set<string> = new Set<string>();
+    private clients: Set<string> = new Set<string>();
 
     sendNotificationToClients(data: any) {
-        console.log(this.clients);
         try {
-            this.server.emit('game-state-update', data);
-            this.logger.log('Message emitted successfully');
+            if (data.gameId) {
+                //send the update only to the clients connected to the corresponding game
+                this.server.to(data.gameId).emit('game-state-update', data);
+                this.logger.log('Message emitted successfully');
+            }
         } catch (error) {
             this.logger.error('Error emitting message:', error);
         }
@@ -71,7 +73,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
             }
         );
         if (!payload?.sub) return;
-        socket.join(gameId); // Join the room
+        socket.join(gameId); // Join the game socket room
         console.log(`user: ${payload.sub} joined game ${gameId}`);
     }
 }
