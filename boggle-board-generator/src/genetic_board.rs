@@ -178,8 +178,37 @@ impl GeneticBoard{
         same/(this.get_x() as f32 * this.get_y() as f32)
     }
 
-
-    pub fn get_board_score(dictionary:&Trie,brd:&Board) -> usize{         
+    /// gets the score of a boggle board.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let trie = builder::TrieBuilder::new()
+    /// .from_file("words.txt")
+    /// .expect("Failed to load trie from file");
+    ///
+    /// //SERSPATGLINESERS
+    /// let _sample = Board::new(
+    ///         vec![
+    ///             vec!['S','E','R','S'],
+    ///             vec!['P','A','T','G'],
+    ///             vec!['L','I','N','E'],
+    ///             vec!['S','E','R','S']]
+    ///         ,4,4);
+    /// //SOTGPRNSEAIESTTL
+    /// let _sample2 = Board::new(
+    ///     vec![
+    ///         vec!['S','O','T','G'],
+    ///         vec!['P','R','N','S'],
+    ///         vec!['E','A','I','E'],
+    ///         vec!['S','T','T','L']]
+    ///     ,4,4);
+    /// let score = get_board_score(&trie,&sample);
+    /// assert!(score>3999);
+    /// let score = get_board_score(&trie,&sample2);
+    /// assert!(score>3999);
+    /// ```
+    fn get_board_score(dictionary:&Trie,brd:&Board) -> usize{         
         let mut set = HashMap::new();
         let mut visited = HashMap::new(); 
 

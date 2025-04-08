@@ -143,14 +143,18 @@ pub fn run(x_size : usize, y_size : usize, dictionary: &Trie){
 
      let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_target_population_size(50)
-        .with_max_stale_generations(15)
-        .with_mutate(MutateMultiGene::new(2, 0.2))
+        .with_target_population_size(100)
+        .with_max_stale_generations(25)
+        //.with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new())
-        .with_select(SelectElite::new(0.8))
-        .with_extension(ExtensionMassDegeneration::new(2, 10))
-        .with_reporter(EvolveReporterSimple::new(50))
-        .with_par_fitness(true)
+        //.with_select(SelectElite::new(0.8))
+        // .with_extension(ExtensionMassDegeneration::new(2, 10))
+         .with_reporter(EvolveReporterSimple::new(50))
+        // .with_par_fitness(true)
+        .with_target_fitness_score(3600)
+        .with_select(SelectTournament::new(4, 0.9))
+        .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
+        //.with_reporter(EvolveReporterDuration::new())
         .with_fitness(BoggleFitness::new(dictionary,x_size,y_size));
 
         let (evolve, _) = evolve_builder.call_speciated(10).unwrap();
