@@ -20,6 +20,7 @@ version = "0.1.0"
 dependencies = [
  "genetic_algorithm",
  "rand 0.9.0",
+ "word-trie",
 ]
 
 [[package]]
@@ -546,6 +547,12 @@ checksum = "3268f3d866458b787f390cf61f4bbb563b922d091359f9608842999eaee3943c"
 dependencies = [
  "bitflags",
 ]
+
+[[package]]
+name = "word-trie"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c02ee5b10f9ee9b6ced0180a4816eeee7768b5b501457c04d40d3250467e7b8"
 
 [[package]]
 name = "wyhash"

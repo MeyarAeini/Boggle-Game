@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 genetic_algorithm = "0.18.1"
 rand = "0.9.0"
+word-trie = "0.1.0"

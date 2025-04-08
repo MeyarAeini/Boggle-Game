@@ -1,17 +1,17 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::collections::HashMap;
-use crate::dictionary::Dictionary;
-use crate::dictionary::trie::TrieNode;
+use word_trie::trie::{Trie,TrieNode};
+
 
 #[derive(Clone, Debug)]
 struct BoggleFitness<'a> {
-    dictionary: &'a Dictionary,
+    dictionary: &'a Trie,
     x_size : usize,
     y_size : usize,
 }
 
 impl <'a> BoggleFitness<'a> {
-    pub fn new(dictionary : &'a Dictionary, x_size:usize, y_size:usize)->Self{
+    pub fn new(dictionary : &'a Trie, x_size:usize, y_size:usize)->Self{
         Self{
             dictionary,
             x_size,
@@ -123,7 +123,7 @@ impl Fitness for BoggleFitness<'_> {
     
 }
 
-pub fn run(x_size : usize, y_size : usize, dictionary: &Dictionary){
+pub fn run(x_size : usize, y_size : usize, dictionary: &Trie){
     let allele_lists = vec![
         'a', 'b', 'c', 'd', 'e', 
         'f', 'g', 'h', 'i', 'j', 

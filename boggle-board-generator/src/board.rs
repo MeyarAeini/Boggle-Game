@@ -1,4 +1,3 @@
-use rand::Rng;
 use rand::distr::{Distribution, Uniform};
 
 pub struct Board{
@@ -38,7 +37,7 @@ impl Board{
 
         for i in 0..x {
             for j in 0..y {
-                let rnd = uniform.sample(&mut rng);;
+                let rnd = uniform.sample(&mut rng);
                 let random_char = (b'A' + rnd) as char;
                 brd.set(i,j,random_char);
             }

@@ -1,8 +1,8 @@
 use crate::board::Board;
-use crate::dictionary::Dictionary;
+use word_trie::trie::{Trie,TrieNode};
 use rand::Rng;
 use rand::distr::{Distribution, Uniform};
-use std::collections::HashSet;
+use std::collections::{HashSet,HashMap};
 
 pub struct GeneticBoard{
     board:Board,
@@ -11,7 +11,7 @@ pub struct GeneticBoard{
 }
 
 impl GeneticBoard{
-    pub fn get_board(dictionary:&mut Dictionary, minimum_score:usize, board_x:usize,board_y:usize)->Board{
+    pub fn get_board(dictionary:&Trie, minimum_score:usize, board_x:usize,board_y:usize)->Board{
         const POPULATION_SIZE:usize = 10;
         let mut choromosomes : Vec<GeneticBoard> = Self::init_population(dictionary,POPULATION_SIZE, board_x, board_y);
 
@@ -42,16 +42,16 @@ impl GeneticBoard{
     //     }
     //     return a;
     // }
-    fn evolve_population(dictionary:&mut Dictionary,size:usize, prev_generation : &Vec<GeneticBoard>) -> Vec<GeneticBoard>{
+    fn evolve_population(dictionary:&Trie,size:usize, prev_generation : &Vec<GeneticBoard>) -> Vec<GeneticBoard>{
         let mut choromosomes : Vec<GeneticBoard> = Vec::new();
         let new_borns : HashSet<String> = HashSet::new();
         let uniform = Uniform::try_from(0..size).unwrap();
         let mut rng = rand::rng();
         while choromosomes.len() < size*10 {            
-            let mut a = 0;
+            let mut a;
             {
                 a = uniform.sample(&mut rng);
-                for i in 0..1 {
+                for _i in 0..1 {
                     let c = uniform.sample(&mut rng);
                     if prev_generation[c].score > prev_generation[a].score {
                         a = c;
@@ -61,7 +61,7 @@ impl GeneticBoard{
             let mut b = a;
             while b==a {
                 b = uniform.sample(&mut rng);
-                for i in 0..1 {
+                for _i in 0..1 {
                     let c = uniform.sample(&mut rng);
                     if prev_generation[c].score > prev_generation[b].score {
                         b = c;
@@ -75,7 +75,7 @@ impl GeneticBoard{
             if new_borns.contains(&key) {
                 continue;
             }
-            born.score = dictionary.get_board_score(&born.board);
+            born.score = Self::get_board_score(dictionary,&born.board);
             choromosomes.push(born);
         }
         for i in 0..1 {
@@ -96,7 +96,7 @@ impl GeneticBoard{
 
         choromosomes
     }
-    fn init_population(dictionary:&mut Dictionary,size:usize, board_x:usize,board_y:usize) -> Vec<GeneticBoard>{
+    fn init_population(dictionary:&Trie,size:usize, board_x:usize,board_y:usize) -> Vec<GeneticBoard>{
         let mut choromosomes : Vec<GeneticBoard> = Vec::new();
         let mut new_borns = HashSet::new();
         while new_borns.len()<size {
@@ -105,7 +105,7 @@ impl GeneticBoard{
             if new_borns.contains(&key) {
                 continue;
             }
-            let score = dictionary.get_board_score(&brd);
+            let score = Self::get_board_score(dictionary,&brd);
 
             let gen_board = Self{
                 board:brd,
@@ -176,5 +176,93 @@ impl GeneticBoard{
             }
         }
         same/(this.get_x() as f32 * this.get_y() as f32)
+    }
+
+
+    pub fn get_board_score(dictionary:&Trie,brd:&Board) -> usize{         
+        let mut set = HashMap::new();
+        let mut visited = HashMap::new(); 
+
+        let mut current = String::new();
+        for i in 0..brd.get_x(){
+            for j in 0..brd.get_y(){
+                Self::get_board_score_from(&dictionary.root,brd,&mut set,&mut visited,i,j,&mut current);
+            }
+        }
+
+        let mut score = 0;
+
+        for (_, val) in &set {
+            score += val;
+        }
+
+        score
+    }
+
+    fn get_board_score_from(mut node:&TrieNode ,
+            brd:&Board,
+            set:&mut HashMap<String,usize>,
+            visited:&mut HashMap<usize,bool>,
+            x:usize,
+            y:usize,
+            current:&mut String
+        ){
+        
+        let cell_index = x*brd.get_x() + y;
+        let is_visited = visited.entry(cell_index).or_insert(false);
+        //if the board's current cell is visited then return.
+        if *is_visited {
+            return;
+        }
+        
+        //mark the current board's cell as visited
+        *is_visited = true;
+        let ch = brd.get(x,y).expect("the board must has value in all cells");
+        
+        //check if the trie has this node
+        let ch_index = ch.to_ascii_lowercase();        
+        match node.nodes.get(&ch_index){
+            Some(next_node) => node = next_node,
+            None => {
+                //if the trie current node does not have the board's current cell's letter then revert the status and return 
+                visited.insert(cell_index,false);
+                return;
+            },
+        }
+        //add current cell's letter to the current word
+        current.push(ch);
+
+        //check if the current word is a valid word in the dictionary 
+        //if yes then check if it's not been added to the result set yet
+        //if not added then add it to the result set with a proper calculated score
+        if node.is_word && !set.contains_key(current) {                
+            set.insert(current.to_string(),Self::get_score(current.len()));
+        }
+
+        //Recursively check all neighbour cells 
+        for (a,b) in [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]{
+            let next_x = x as i8 + a;
+            let next_y = y as i8 + b;
+            if (0..brd.get_x() as i8).contains(&next_x) && (0..brd.get_y() as i8).contains(&next_y){
+                Self::get_board_score_from(node,brd, set, visited,next_x as usize,next_y as usize, current); 
+            }           
+        }
+
+        //Remove current visited cell letter from current word end.
+        current.pop();
+
+        //mark the current cell as not visited 
+        visited.insert(cell_index,false);        
+    }
+
+    fn get_score(len:usize)->usize{
+        match len{
+            0..=2 => 0,
+            3..=4 => 1,
+            5 => 2,
+            6 => 3,
+            7 => 5,
+            _ => 11
+        }
     }
 }
