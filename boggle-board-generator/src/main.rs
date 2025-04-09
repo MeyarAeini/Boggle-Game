@@ -3,9 +3,12 @@ use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 
 #[get("/boggle")]
 async fn hello() -> impl Responder {
+    let path = std::env::var("WORDS_PATH").unwrap_or("words.txt".to_string());
+
+    println!("dictionary file path: {path}");
     //SERSPATGLINESERS
     let builder = BoggleBuilder::new()
-        .with_dictionary_path("words.txt")
+        .with_dictionary_path(path)
         .with_target_score(3000)
         .with_length(4)
         .with_width(4);

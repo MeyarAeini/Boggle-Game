@@ -1,6 +1,17 @@
 version: '3.1'
 
 services:
+  boggle-board-generator:
+    build:
+      context: ./boggle-board-generator
+      target: final
+    ports:
+      - 1729:1729
+    restart: always
+    networks:
+      - boggle-network
+    environment:
+      WORDS_PATH: /bin/words.txt
   mongodb:
     image: mongo
     restart: always
@@ -39,6 +50,7 @@ services:
     depends_on:
       - mongodb
       - boggle-game-sync
+      - boggle-board-generator
     networks:
       - boggle-network
   
