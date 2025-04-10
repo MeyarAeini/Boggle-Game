@@ -8,17 +8,20 @@ import { DictionaryService } from 'src/dictionary/dictionary.service';
 import { BoardPath } from 'src/dictionary/definitions';
 import { GeneticPopulation } from "./genetic-population";
 import { GeneticBoggleBoard } from './genetic-boggle-board';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class BoardService {
     constructor(
         @InjectModel(GameBoard.name) private boardModel: Model<GameBoard>,
         private userService: UserService,
-        private dictionaryService: DictionaryService
+        private dictionaryService: DictionaryService,
+        private readonly httpService: HttpService
     ) { }
 
     async generateBoard(userId: string): Promise<GameBoard> {
-        const board = (await this.geneticGet()).id;//randomString(16);
+        const board = await this.rustGet();//(await this.geneticGet()).id;//randomString(16);
         const user = await this.userService.findOne(userId);
         let validWords: string[] = this.dictionaryService.findAllValidPath(board).filter(it => it.word.length > 2).map((v: BoardPath, i: number) => {
 
@@ -91,5 +94,12 @@ export class BoardService {
         }
         return genetic.getElite(1)[0];
 
+    }
+
+    async rustGet() : Promise<string>{
+        const response = await firstValueFrom(
+            this.httpService.get('http://boggle-board-generator:1729/boggle')
+          );
+        return response.data;
     }
 }

@@ -12,6 +12,9 @@ export class GameSession {
     _id: Types.ObjectId;
 
     @Prop()
+    creationTime : Date;
+
+    @Prop()
     startTime?: Date;
 
     @Prop()

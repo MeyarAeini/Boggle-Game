@@ -3,7 +3,6 @@ import { DictionaryModule } from './dictionary/dictionary.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { AppGateway } from './gateway/events.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameModule } from './game/game.module';
 import { BoardModule } from './board/board.module';
@@ -22,6 +21,5 @@ import { WordSubmissionModule } from './word-submission/word-submission.module';
       BoardModule,
       WordSubmissionModule
     ],
-  providers: [AppGateway ],
 })
 export class AppModule { }

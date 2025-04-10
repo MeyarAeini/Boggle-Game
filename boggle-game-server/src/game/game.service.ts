@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GameSession } from './schemas/game-session.schema';
 import mongoose, { Model, Types } from 'mongoose';
@@ -6,6 +6,8 @@ import { BoardService } from 'src/board/board.service';
 import { UserService } from 'src/user/user.service';
 import { GameTeam } from './schemas/game-team.schema';
 import { UserGamesDto } from './dtos/user-games.dto';
+import { User } from 'src/user/schemas/user.schema';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class GameService {
@@ -13,7 +15,8 @@ export class GameService {
         @InjectModel(GameSession.name) private gameSessionModel: Model<GameSession>,
         @InjectModel(GameTeam.name) private gameTeamModel: Model<GameTeam>,
         private boardService: BoardService,
-        private userService: UserService
+        private userService: UserService,
+        @Inject('NOTIF_SERVICE') private notif_client: ClientProxy,
     ) { }
 
     async createSession(userId: string): Promise<GameSession | null> {
@@ -21,7 +24,7 @@ export class GameService {
         if (!user) return null;
         const session = new this.gameSessionModel({
             _id: new Types.ObjectId(),
-            board: await this.boardService.generateBoard(userId),
+            creationTime : new Date(),
             teams: [new this.gameTeamModel({
                 members: [user],
                 winner: false
@@ -33,12 +36,39 @@ export class GameService {
     }
 
     async startSession(sessionId: string): Promise<boolean> {
+        await this.publish_game_state_update(sessionId);
         const session = await this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(sessionId) }).exec();
         if (!session) return false;
         if (!!session.startTime) return false;
         session.startTime = new Date();
-        await session.save();
+        session.board = await this.boardService.generateBoard(session.organiser._id.toHexString()),
+            await session.save();
         return true;
+    }
+
+    async joinSession(userId: string, sessionId: string) {
+        const session = await this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(sessionId) }).exec();
+        if (!session) return;
+        if (!!session.startTime) return;
+        const userIdObject = new mongoose.Types.ObjectId(userId);
+        const teamWithUser = session.teams.find((team) =>
+            team.members.some((member) => {
+                const memberId = member instanceof Types.ObjectId ? member : member._id;
+                return memberId.equals(userIdObject)
+            }),
+        );
+
+        if (teamWithUser) {
+            return;
+        }
+
+        session.teams.push(new this.gameTeamModel({
+            members: [userIdObject],
+            winner: false
+        }));
+
+        await session.save();
+        await this.publish_game_state_update(sessionId);
     }
 
     async endSession(sessionId: string): Promise<boolean> {
@@ -47,11 +77,26 @@ export class GameService {
         if (!!session.endTime) return false;
         session.endTime = new Date();
         session.save();
+        await this.publish_game_state_update(sessionId);
         return true;
     }
 
     async findOne(id: string): Promise<GameSession | null> {
         return this.gameSessionModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
+    }
+
+    async getLastSession(userId: string): Promise<GameSession | null> {
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+
+        const games = await this.gameSessionModel.find({
+            teams: {
+                $elemMatch: {
+                    members: userObjectId
+                }
+            }
+        }).sort({ creationTime: -1 }).limit(1).exec();
+        if (!games || games.length == 0) return null;
+        return games[0];
     }
 
     async getUserGames(userGamesDto: UserGamesDto): Promise<any> {
@@ -109,7 +154,6 @@ export class GameService {
     }
 
     async getUserGamesCount(userId: string): Promise<any> {
-        console.log(userId);
         const result = await this.gameSessionModel.aggregate([
             {
                 $match: {
@@ -121,6 +165,60 @@ export class GameService {
             }]);
         return result.length > 0 ? result[0].count : 0;
 
+    }
+
+    async findTeammateUserIds(gameId: Types.ObjectId, userId: Types.ObjectId): Promise<Types.ObjectId[]> {
+
+        const gameSession = await this.gameSessionModel.findOne({
+            '_id': gameId,
+        });
+
+        if (!gameSession) {
+            return [];
+        }
+
+        const teamWithUser = gameSession.teams.find((team) =>
+            team.members.some((member) => {
+                const memberId = member instanceof Types.ObjectId ? member : member._id;
+                return memberId.equals(userId)
+            }),
+        );
+
+        if (!teamWithUser) {
+            return [];
+        }
+
+        return teamWithUser.members
+            .map((member) => (member instanceof Types.ObjectId ? member : member._id));
+    }
+
+    async getGamePlayers(sessionId: string): Promise<User[] | null> {
+        const result = await this.gameSessionModel.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(sessionId) } },
+            { $unwind: "$teams" },
+            { $unwind: "$teams.members" },
+            { $group: { _id: null, userIds: { $push: "$teams.members" } } },
+            { $project: { _id: 0, userIds: 1 } }]).exec();
+        return this.userService.findAll(result[0].userIds);
+    }
+
+    async publish_game_state_update(sesstionId:string){
+        const session = await this.findOne(sesstionId);
+        if(!session){
+            return;
+        }
+
+        const players = await this.getGamePlayers(sesstionId);
+
+        const dto = {
+            gameId: session._id,
+            players:players?.map((p) => ({
+                email: p.email,
+                id: p.id,
+                name: p.name,
+            }))
+        };
+        this.notif_client.emit<any>('game-state-update', dto);
     }
 
 }

@@ -28,3 +28,30 @@ export type WordScore = {
     word: string,
     score: number,
 }
+
+export type GameSession = {
+    sessionId: string,
+    board: string[][],
+    startTime: Date,
+    endTime: Date,
+    timeElapsed: number,
+}
+
+export type SubmittedWord = {
+    path: string,
+    word: string,
+    valid: boolean,
+    score: number,
+}
+
+export type Player = {
+    id: string,
+    email: string,
+    name: string,
+    score : number,
+}
+
+export type GameState = {
+    gameId : string,
+    players : Player[],
+}

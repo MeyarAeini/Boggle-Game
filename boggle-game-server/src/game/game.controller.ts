@@ -25,7 +25,10 @@ export class GameController {
         const session = await this.gameService.createSession(userId);
         return {
             sessionId: session?._id,
-            board: session?.board?._id
+            board: session?.board?._id,
+            startTime: session?.startTime,
+            endTime: session?.endTime,
+            now: new Date(),
         };
     }
 
@@ -33,6 +36,12 @@ export class GameController {
     @Post('start')
     async startGameSession(@Body() dto: GameSessionDto) {
         return this.gameService.startSession(dto.sessionId);
+    }
+
+    @UseGuards(JwtGuard)
+    @Post('join')
+    async joinGameSession(@GetUser('id') userId, @Body() dto: GameSessionDto) {
+        return this.gameService.joinSession(userId, dto.sessionId);
     }
 
     @UseGuards(JwtGuard)
@@ -61,5 +70,30 @@ export class GameController {
     @Get('count')
     async getUserGamesCount(@GetUser('id') userId) {
         return this.gameService.getUserGamesCount(userId);
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('lastsession')
+    async getLastSession(@GetUser('id') userId) {
+        const session = await this.gameService.getLastSession(userId);
+        if (session == null) return null;
+        return {
+            sessionId: session._id,
+            board: session.board,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            now: new Date(),
+        };
+    }
+
+    @UseGuards(JwtGuard)
+    @Get("players")
+    async getGamePlayers(@Query('gameId') gameId) {
+        const players = await this.gameService.getGamePlayers(gameId);
+        return players?.map((p) => ({
+            email: p.email,
+            id: p.id,
+            name: p.name,
+        }));
     }
 }

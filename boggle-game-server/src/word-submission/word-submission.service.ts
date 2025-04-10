@@ -31,8 +31,18 @@ export class WordSubmissionService {
             valid: valid,
             dictionary: "default",
             dateTime: new Date(),
-            score : score,
+            score: score,
         });
+        await this.gameService.publish_game_state_update(dto.game);
         return record.save();
+    }
+
+    async getUserTeamWordSubmissions(userId: string, gameId: string): Promise<WordSubmission[]> {
+        const userIdAsObjectId = new Types.ObjectId(userId);
+        const gameIdAsObjectId = new Types.ObjectId(gameId);
+        const teammates = await this.gameService.findTeammateUserIds(gameIdAsObjectId, userIdAsObjectId);
+        if (!teammates || teammates.length == 0) return [];
+
+        return this.wordSubmissionModel.find({ game: gameIdAsObjectId, finder: { $in: teammates } }).exec();
     }
 }

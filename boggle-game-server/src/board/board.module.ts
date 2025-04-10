@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameBoard, GameBoardSchema } from './schemas/board.schema';
 import { UserModule } from 'src/user/user.module';
 import { DictionaryModule } from 'src/dictionary/dictionary.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { DictionaryModule } from 'src/dictionary/dictionary.module';
       [
         { name: GameBoard.name, schema: GameBoardSchema }
       ]),
-    UserModule,DictionaryModule
+    UserModule,DictionaryModule,HttpModule
   ],
   providers: [BoardService],
   controllers: [BoardController],
