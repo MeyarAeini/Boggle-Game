@@ -4,7 +4,7 @@ import socket from "../services/socket.service";
 
 export const useGameState = () => {
     const [connected, setConnected] = useState(false);
-    const [gameState, setGameState] = useState({});
+    const [gameState, setGameState] = useState<GameState | null>(null);
     const [gameId, setGameId] = useState("");
 
     useEffect(() => {
@@ -17,9 +17,9 @@ export const useGameState = () => {
         });
 
         socket.on('game-state-update', (data: any) => {
-            //setGameState(data);
-            console.log('game-state-update recieved:');
-            console.log(data);
+            setGameState(data);
+            // console.log('game-state-update recieved:');
+            // console.log(data);
         });
 
         socket.on('message', (data: any) => {

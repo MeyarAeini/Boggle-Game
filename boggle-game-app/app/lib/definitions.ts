@@ -48,14 +48,10 @@ export type Player = {
     id: string,
     email: string,
     name: string,
-}
-
-export type GamePlayerState = {
-    player : string,
-    score : string,
+    score : number,
 }
 
 export type GameState = {
     gameId : string,
-    players : GamePlayerState[],
+    players : Player[],
 }
