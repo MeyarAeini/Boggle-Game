@@ -22,7 +22,7 @@ export async function query(query:string){
 }
 
 export async function getToken(): Promise<string> {
-    const session = await auth();
-    return session?.user?.accessToken;
+    const session : any = await auth();
+    return session?.sessionToken;
 
 }
