@@ -65,15 +65,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     handleJoinGame(@ConnectedSocket() socket: Socket, @MessageBody() data) {
         const { token, gameId } = data;
 
-        if (!token) return;
-        const payload = this.jwtService.verify(
-            token,
-            {
-                secret: this.configService.get<string>('JWT_SECRET') || ''
-            }
-        );
-        if (!payload?.sub) return;
+        // if (!token) return;
+        // const payload = this.jwtService.verify(
+        //     token,
+        //     {
+        //         secret: this.configService.get<string>('JWT_SECRET') || ''
+        //     }
+        // );
+        // if (!payload?.sub) return;
         socket.join(gameId); // Join the game socket room
-        console.log(`user: ${payload.sub} joined game ${gameId}`);
+        console.log(`socket: ${socket.id} joined game ${gameId}`);
     }
 }

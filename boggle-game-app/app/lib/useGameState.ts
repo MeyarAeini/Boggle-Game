@@ -42,7 +42,7 @@ export const useGameState = () => {
     }, []);
 
     const join = (gameId: string, token: string) => {
-        if (socket && token) {
+        if (socket) {
             socket.emit("join-game", { token, gameId });
             setGameId(gameId);
         }
