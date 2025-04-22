@@ -35,6 +35,7 @@ export type GameSession = {
     startTime: Date,
     endTime: Date,
     timeElapsed: number,
+    boardId: string,
 }
 
 export type SubmittedWord = {
@@ -54,4 +55,10 @@ export type Player = {
 export type GameState = {
     gameId : string,
     players : Player[],
+}
+
+export type BoardSolution = {
+    scores: Map<number,number>,
+    lengths: Map<number,number>,
+
 }

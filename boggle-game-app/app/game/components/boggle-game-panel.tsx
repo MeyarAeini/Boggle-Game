@@ -6,10 +6,11 @@ import BoardHeader from "./board-header";
 import BoardLeftSide from "./board-left-side";
 import BoardRightSide from "./board-right-side";
 import BoardFooter from "./board-footer";
-import { BoardPath, GameSession, WordScore } from "@/app/lib/definitions";
+import { BoardPath, BoardSolution, GameSession, WordScore } from "@/app/lib/definitions";
 import { getSubmittedWords, submitWord } from "@/app/services/game.service";
 //import { useSession } from "next-auth/react";
 import { useGameState } from "@/app/lib/useGameState";
+import { solve_board } from "@/app/services/board.service";
 
 export default function BoggleGamePanel({ gameSession }: { gameSession: GameSession }) {
     //const { data: session } = useSession({ required: true });
@@ -18,6 +19,10 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
     const [word, setWord] = useState('');
     const [validWords, setValidWords] = useState<WordScore[]>([]);
     const [totalScore, setTotalScore] = useState(0);
+    const [boardSolutions, setBoardSolutions] = useState<BoardSolution>({
+        scores: new Map<number, number>(),
+        lengths: new Map<number, number>(),
+    });
 
     //connect to socket
     const { gameState } = useGameState();
@@ -25,6 +30,8 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
     useEffect(() => {
         const loadWords = async () => {
             const wrds = await getSubmittedWords(gameSession.sessionId);
+            const board_solutions = await solve_board(gameSession.boardId);
+            setBoardSolutions(board_solutions);
             setWords((prev) => {
                 const newVersion = new Map(prev);
                 wrds.forEach((v) => {
@@ -85,7 +92,7 @@ export default function BoggleGamePanel({ gameSession }: { gameSession: GameSess
         <div className="flex flex-col min-h-screen bg-gray-100 p-4">
             {/* Header at the top */}
             <div className="w-full">
-                <BoardHeader gameSession={gameSession} word={word} score={totalScore} />
+                <BoardHeader gameSession={gameSession} word={word} score={totalScore} board={boardSolutions} />
             </div>
 
             {/* Middle section (left, board, right) */}

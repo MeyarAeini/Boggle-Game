@@ -272,14 +272,15 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "boggle-maker",
+ "serde",
  "tokio",
 ]
 
 [[package]]
 name = "boggle-maker"
-version = "0.1.1"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b0ed74b5c564e4daadd8a7a99bbbde25f8d35a36faa9e9b92cc9a977262d7ee"
+checksum = "4c428b65902892447c8fd9322c597f3c576f49e34574129d380ca96677f678d9"
 dependencies = [
  "genetic_algorithm",
  "rand 0.9.0",
