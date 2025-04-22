@@ -31,4 +31,10 @@ export class BoardController {
             score: sample.score
         };
     }
+
+    @UseGuards(JwtGuard)
+    @Get("solve")
+    async solve_board(@Query('board') board: string) {
+        return await this.boardService.solveBoard(board);
+    }
 }

@@ -23,6 +23,7 @@ function getGameSession(data: any): GameSession {
         timeElapsed: elapsed,
         board: data.board ? Array.from({ length: 4 }, (_, i) =>
             Array.from({ length: 4 }, (_, j) => data.board.slice(i * 4 + j, i * 4 + j + 1))) : [[]],
+        boardId: data.board
     };
 }
 

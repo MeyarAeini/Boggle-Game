@@ -15,6 +15,7 @@ struct BoardParams {
 struct BoardResult {
     value: Option<String>,
     scores: Option<HashMap<usize,u32>>,
+    lengths: Option<HashMap<usize,usize>>,
     error: Option<String>,
 }
 
@@ -30,6 +31,7 @@ impl BoardResult {
         let mut result = Self::default();
         result.value = Some(val);
         result.scores = Some(HashMap::new());
+        result.lengths = Some(HashMap::new());
         
         result
     }
@@ -38,6 +40,10 @@ impl BoardResult {
         if let Some(scores) = &mut self.scores {
             scores.insert(score, value);
         }
+    }
+
+    pub fn set_lengths(&mut self, set: HashMap<usize,usize>){
+        self.lengths = Some(set);
     }
 }
 
@@ -58,7 +64,9 @@ pub async fn solve_boggle_board(req: HttpRequest, data: web::Data<BoggleService>
 
                 for score in vec![1,2,3,5,11].iter() {
                     response.set(*score,board_result.how_many(*score));
-                }        
+                }  
+                
+                response.set_lengths(board_result.len_counts().clone());
 
                 web::Json(response)
             },

@@ -96,10 +96,17 @@ export class BoardService {
 
     }
 
-    async rustGet() : Promise<string>{
+    async rustGet(): Promise<string> {
         const response = await firstValueFrom(
             this.httpService.get('http://boggle-board-generator:1729/boggle')
-          );
+        );
+        return response.data;
+    }
+
+    async solveBoard(board: String): Promise<any> {
+        const response = await firstValueFrom(
+            this.httpService.get(`http://boggle-board-generator:1729/solve?board=${board}`)
+        );
         return response.data;
     }
 }

@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.10.2"
-boggle-maker = "0.1.3"
+boggle-maker = "0.1.4"
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = "1.44.2"
